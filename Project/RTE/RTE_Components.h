@@ -4,7 +4,7 @@
  *      *** Do not modify ! ***
  *
  * Project: 'First' 
- * Target:  'STM32F4' 
+ * Target:  'STM32F0' 
  */
 
 #ifndef RTE_COMPONENTS_H
