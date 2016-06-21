@@ -8,8 +8,8 @@ ARM Macro Assembler    Page 1
                        ics ********************
     2 00000000         ;* File Name          : startup_stm32f072xb.s
     3 00000000         ;* Author             : MCD Application Team
-    4 00000000         ;* Version            : V2.2.3
-    5 00000000         ;* Date               : 29-January-2016
+    4 00000000         ;* Version            : V2.3.0
+    5 00000000         ;* Date               : 27-May-2016
     6 00000000         ;* Description        : STM32F072x8/STM32F072xB devices 
                        vector table for MDK-ARM toolchain.
     7 00000000         ;*                      This module performs:
