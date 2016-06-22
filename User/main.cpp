@@ -10,12 +10,12 @@ Copyright 2015 shentq. All Rights Reserved.
 //STM32 RUN IN eBox
 #include "stm32f0xx_hal.h"
 
-//#include "ebox.h"
+#include "ebox.h"
 
 
 void setup()
 {
-//    ebox_init();
+    ebox_init();
 //    uart1.begin(115200);
 //    uart1.printf("eraes \r\n");
 

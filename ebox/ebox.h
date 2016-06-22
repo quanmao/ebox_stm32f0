@@ -3,19 +3,19 @@
 
 #include "ebox_common.h"
 
-#include "ebox_gpio.h"
-#include "ebox_uart.h"
-#include "ebox_gtimer.h"
-#include "ebox_spi.h"
-#include "ebox_i2c.h"
-#include "ebox_pwm.h"
-#include "ebox_iflash.h"
+//#include "ebox_gpio.h"
+//#include "ebox_uart.h"
+//#include "ebox_gtimer.h"
+//#include "ebox_spi.h"
+//#include "ebox_i2c.h"
+//#include "ebox_pwm.h"
+//#include "ebox_iflash.h"
 
 
-extern Usart uart1;
-//Usart uart1(USART1,&PB6,&PB7);
-extern Usart uart2;
-extern Usart uart3;
+//extern Usart uart1;
+////Usart uart1(USART1,&PB6,&PB7);
+//extern Usart uart2;
+//extern Usart uart3;
 
 extern Gpio PA0;
 extern Gpio PA1;
