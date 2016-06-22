@@ -2,15 +2,15 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_conf_template.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    26-June-2015
+  * @version V1.6.0
+  * @date    27-May-2016
   * @brief   HAL configuration template file. 
   *          This file should be copied to the application folder and renamed
   *          to stm32f0xx_hal_conf.h.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -80,6 +80,7 @@
 #define HAL_USART_MODULE_ENABLED
 #define HAL_WWDG_MODULE_ENABLED
 
+
 /* ######################### Oscillator Values adaptation ################### */
 /**
   * @brief Adjust the value of External High Speed oscillator (HSE) used in your application.
@@ -95,7 +96,7 @@
   *        Timeout value 
   */
 #if !defined  (HSE_STARTUP_TIMEOUT)
-  #define HSE_STARTUP_TIMEOUT    ((uint32_t)5000)   /*!< Time out for HSE start up, in ms */
+  #define HSE_STARTUP_TIMEOUT    ((uint32_t)100)   /*!< Time out for HSE start up, in ms */
 #endif /* HSE_STARTUP_TIMEOUT */
 
 /**
@@ -298,11 +299,11 @@
   *         If expr is true, it returns no value.
   * @retval None
   */
-  #define assert_param(expr) ((expr) ? (void)0 : assert_failed((uint8_t *)__FILE__, __LINE__))
+  #define assert_param(expr) ((expr) ? (void)0U : assert_failed((uint8_t *)__FILE__, __LINE__))
 /* Exported functions ------------------------------------------------------- */
   void assert_failed(uint8_t* file, uint32_t line);
 #else
-  #define assert_param(expr) ((void)0)
+  #define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */    
     
 #ifdef __cplusplus

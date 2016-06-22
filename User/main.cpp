@@ -8,7 +8,7 @@ Copyright 2015 shentq. All Rights Reserved.
 */
 
 //STM32 RUN IN eBox
-
+#include "stm32f0xx_hal.h"
 
 //#include "ebox.h"
 
