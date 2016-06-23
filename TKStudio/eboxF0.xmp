@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252" ?>
 <TKStudioProject Name="eboxF0" ProjectGUID="{E50FA235-6E26-48f8-8131-A9F1132DEA6A}" BuildTool="15" ToolVer="" Version="3.00" Author="YinHandong[Òüº®¶¬]">
     <Configurations>
-        <Configuration Name="DebugRel" OP="0" XROM="0,0,0,0#0,0,0,0#0,0,0,0" XRAM="0,0,0,0#0,0,0,0#0,0,0,0" OldName="DebugRel" OutBig="0" McLib="0" CLK="8.000000" Cross="0" IROM="1,0x08000000,0x00004000,1#0,0,0,0" IRAM="1,0x20000000,0x00001000,0#0,0,0,0" OldCPU="STM32F100C4" OPTDBG="1,-1,1,1,1,0,()" DEVICE="STM32F100C4" VENDOR="STMicroelectronics" FAMINY="3" SIMCLK="8.000000">
+        <Configuration Name="DebugRel" OP="0" XROM="0,0,0,0#0,0,0,0#0,0,0,0" XRAM="0,0,0,0#0,0,0,0#0,0,0,0" OldName="DebugRel" OutBig="0" McLib="0" CLK="8.000000" Cross="0" IROM="1,0x08000000,0x00004000,1#0,0,0,0" IRAM="1,0x20000000,0x00001000,0#0,0,0,0" OldCPU="STM32F100C4" OPTDBG="1,-1,1,0,1,1,()" DEVICE="STM32F100C4" VENDOR="STMicroelectronics" FAMINY="3" SIMCLK="8.000000">
             <MDK_Output OutName="0,.\DebugRel\eboxF0" OutType="1" OutBatch="0" OutHex="0" OutList="0,.\DebugRel" Debug="1" Browse="0" />
             <MDK_User BfC="0,()#0,()" BfB="0,()#0,()" AfB="0,()#0,()" Beep="1" SDebug="0" />
             <MDK_CParam Def="" uDef="" Inc="" Misc="" Opt="0,0" Code="0,0,0,0,0,0" Language="0,0,0,0" List="0" />

@@ -90,6 +90,7 @@ typedef enum
     PG0_ID = 0,     PG1_ID,     PG2_ID,     PG3_ID,     PG4_ID,     PG5_ID,     PG6_ID,     PG7_ID,
     PG8_ID,         PG9_ID,     PG10_ID,    PG11_ID,    PG12_ID,    PG13_ID,    PG14_ID,    PG15_ID,
 }PIN_ID_t;
+
 class Gpio
 {
 public:
@@ -124,6 +125,7 @@ private:
     uint32_t port_reset_reg;
 
 };
+
 class PARALLEL_GPIO
 {
 public:

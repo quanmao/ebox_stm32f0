@@ -16,6 +16,7 @@ Copyright 2015 shentq. All Rights Reserved.
 void setup()
 {
     ebox_init();
+	  PA5.mode(OUTPUT_PP);
 //    uart1.begin(115200);
 //    uart1.printf("eraes \r\n");
 
@@ -31,10 +32,11 @@ void setup()
 int main(void)
 {
     setup();
-
     //random_seed(10);
     while(1)
     {
+				PA5.toggle();
+			  delay_ms(500);
 //        PA15.toggle();
 //        for(int i = 0; i < 10;i++)
 //        {
