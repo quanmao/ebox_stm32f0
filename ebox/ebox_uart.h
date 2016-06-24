@@ -42,7 +42,7 @@ private:
     uint8_t             dma_irq;//DMA2_Stream7_IRQn;
     DMA_TypeDef         *dma;
     uint32_t            dma_channel;
-    DMA_Stream_TypeDef  *dma_stream;
+//    DMA_Stream_TypeDef  *dma_stream;
     void                dma_config();
     uint16_t            dma_send_string(const char *str, uint16_t length);
 

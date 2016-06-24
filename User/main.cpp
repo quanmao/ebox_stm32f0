@@ -17,17 +17,8 @@ void setup()
 {
     ebox_init();
 	  PA5.mode(OUTPUT_PP);
-//    uart1.begin(115200);
-//    uart1.printf("eraes \r\n");
-
-//    PA15.mode(OUTPUT_PP);
-//    PA15.toggle();
-//        delay_ms(100);
-//    PA15.toggle();
-//        delay_ms(100);
-//    PA15.toggle();
-//        delay_ms(100);
-    
+	  uart2.begin(115200);
+	  uart2.printf("test66666666");    
 }
 int main(void)
 {
@@ -35,7 +26,7 @@ int main(void)
     //random_seed(10);
     while(1)
     {
-				PA5.toggle();
+			PA5.toggle();
 			  delay_ms(500);
 //        PA15.toggle();
 //        for(int i = 0; i < 10;i++)

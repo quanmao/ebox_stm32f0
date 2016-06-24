@@ -672,7 +672,6 @@
             </Filter>
         </Filter>
         <Filter Name="USER">
-            <File RelativePath="..\User\main.c" FileType="1" Output="main.o" ro="0" bss="0" rw="0" />
             <File RelativePath="..\User\main.cpp" FileType="3" Output="main.o" ro="0" bss="0" rw="0" />
             <File RelativePath="..\User\stm32f0xx_hal_conf.h" FileType="4" ro="0" bss="0" rw="0" />
             <File RelativePath="..\User\stm32f0xx_hal_msp.c" FileType="1" Output="stm32f0xx_hal_msp.o" ro="0" bss="0" rw="0" />

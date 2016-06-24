@@ -22,213 +22,353 @@ Usart::Usart(USART_TypeDef *USARTx, Gpio *tx, Gpio *rx)
     this->tx = tx;
     this->rx = rx;
 }
+
+/**
+ *@name     USART::begin(uint32_t baud_rate)
+ *@brief    启动串口
+ *@param    USARTx:  USART1,2,3和UART4,5
+ *          baud_rate:  波特率
+ *@retval   None
+*/
 void Usart::begin(uint32_t baud_rate)
 {
     begin(baud_rate,1);
 }
+
+/**
+ *@name     USART::begin(uint32_t baud_rate,uint8_t use_dma)
+ *@brief    启动串口
+ *@param    USARTx:  USART1,2,3和UART4,5
+ *          baud_rate:  波特率
+ *		      use_dma： 是否使用DMA
+ *@retval   None
+*/
 void Usart::begin(uint32_t baud_rate,uint8_t use_dma)
 {
     
-    this->use_dma = use_dma;
-    
-    switch((uint32_t)USARTx)
-    {
-        case (uint32_t)USART1_BASE:
-            /* gpio parament
-            */
-            gpio_af_usart       = GPIO_AF_USART1;
-        
-            /* usart parament
-            */
-            rcc_usart_clock_cmd = RCC_APB2PeriphClockCmd;
-            usart_rcc           = RCC_APB2Periph_USART1;
-            usart_irq           = USART1_IRQn;
-            /* dma parament
-            */
-            rcc_dma_clock_cmd   = RCC_AHB1PeriphClockCmd;        
-            dma_rcc             = RCC_AHB1Periph_DMA2;
-            dma_irq             = DMA2_Stream7_IRQn;
-            dma                 = DMA2;
-            dma_channel         = DMA_Channel_4;
-            dma_stream          = DMA2_Stream7;
-        break;
-        
-        case (uint32_t)USART2_BASE:
-            /* gpio parament
-            */
-            gpio_af_usart       = GPIO_AF_USART2;
-        
-            /* usart parament
-            */
-            rcc_usart_clock_cmd = RCC_APB1PeriphClockCmd;
-            usart_rcc           = RCC_APB1Periph_USART2;
-            usart_irq           = USART2_IRQn;
-            /* dma parament
-            */
-            rcc_dma_clock_cmd   = RCC_AHB1PeriphClockCmd;        
-            dma_rcc             = RCC_AHB1Periph_DMA1;
-            dma                 = DMA1;
-            dma_channel         = DMA_Channel_4;
-            dma_irq             = DMA1_Stream6_IRQn;
-            dma_stream          = DMA1_Stream6;
-        break;
-        
-        case (uint32_t)USART3_BASE:
-            /* gpio parament
-            */
-            gpio_af_usart       = GPIO_AF_USART3;
-        
-            /* usart parament
-            */
-            rcc_usart_clock_cmd = RCC_APB1PeriphClockCmd;
-            usart_rcc           = RCC_APB1Periph_USART3;
-            usart_irq           = USART3_IRQn;
-            /* dma parament
-            */
-            rcc_dma_clock_cmd   = RCC_AHB1PeriphClockCmd;        
-            dma_rcc             = RCC_AHB1Periph_DMA1;
-            dma                 = DMA1;
-            dma_channel         = DMA_Channel_4;
-            dma_irq             = DMA1_Stream3_IRQn;
-            dma_stream          = DMA1_Stream3;
-        break;   
-    
-        case (uint32_t)UART4_BASE:
-            /* gpio parament
-            */
-            gpio_af_usart       = GPIO_AF_UART4;
-        
-            /* usart parament
-            */
-            rcc_usart_clock_cmd = RCC_APB1PeriphClockCmd;
-            usart_rcc           = RCC_APB1Periph_UART4;
-            usart_irq           = UART4_IRQn;
-            /* dma parament
-            */
-            rcc_dma_clock_cmd   = RCC_AHB1PeriphClockCmd;        
-            dma_rcc             = RCC_AHB1Periph_DMA1;
-            dma                 = DMA1;
-            dma_channel         = DMA_Channel_4;
-            dma_irq             = DMA1_Stream4_IRQn;
-            dma_stream          = DMA1_Stream4;
-        break;   
-    
-        case (uint32_t)UART5_BASE:
-            /* gpio parament
-            */
-            gpio_af_usart       = GPIO_AF_UART5;
-        
-            /* usart parament
-            */
-            rcc_usart_clock_cmd = RCC_APB1PeriphClockCmd;
-            usart_rcc           = RCC_APB1Periph_UART5;
-            usart_irq           = UART5_IRQn;
-            /* dma parament
-            */
-            rcc_dma_clock_cmd   = RCC_AHB1PeriphClockCmd;        
-            dma_rcc             = RCC_AHB1Periph_DMA1;
-            dma                 = DMA1;
-            dma_channel         = DMA_Channel_4;
-            dma_irq             = DMA1_Stream7_IRQn;
-            dma_stream          = DMA1_Stream7;
-        break;   
-    
-    }               
+//    this->use_dma = use_dma;
+//    // 配置各串口参数
+//    switch((uint32_t)USARTx)
+//    {
+//        case (uint32_t)USART1_BASE:
+//            /* gpio parament
+//            */
+//            gpio_af_usart       = GPIO_AF_USART1;
+//        
+//            /* usart parament
+//            */
+//            rcc_usart_clock_cmd = RCC_APB2PeriphClockCmd;
+//            usart_rcc           = RCC_APB2Periph_USART1;
+//            usart_irq           = USART1_IRQn;
+//            /* dma parament
+//            */
+//            rcc_dma_clock_cmd   = RCC_AHB1PeriphClockCmd;        
+//            dma_rcc             = RCC_AHB1Periph_DMA2;
+//            dma_irq             = DMA2_Stream7_IRQn;
+//            dma                 = DMA2;
+//            dma_channel         = DMA_Channel_4;
+//            dma_stream          = DMA2_Stream7;
+//        break;
+//        
+//        case (uint32_t)USART2_BASE:
+//            /* gpio parament
+//            */
+//            gpio_af_usart       = GPIO_AF_USART2;
+//        
+//            /* usart parament
+//            */
+//            rcc_usart_clock_cmd = RCC_APB1PeriphClockCmd;
+//            usart_rcc           = RCC_APB1Periph_USART2;
+//            usart_irq           = USART2_IRQn;
+//            /* dma parament
+//            */
+//            rcc_dma_clock_cmd   = RCC_AHB1PeriphClockCmd;        
+//            dma_rcc             = RCC_AHB1Periph_DMA1;
+//            dma                 = DMA1;
+//            dma_channel         = DMA_Channel_4;
+//            dma_irq             = DMA1_Stream6_IRQn;
+//            dma_stream          = DMA1_Stream6;
+//        break;
+//        
+//        case (uint32_t)USART3_BASE:
+//            /* gpio parament
+//            */
+//            gpio_af_usart       = GPIO_AF_USART3;
+//        
+//            /* usart parament
+//            */
+//            rcc_usart_clock_cmd = RCC_APB1PeriphClockCmd;
+//            usart_rcc           = RCC_APB1Periph_USART3;
+//            usart_irq           = USART3_IRQn;
+//            /* dma parament
+//            */
+//            rcc_dma_clock_cmd   = RCC_AHB1PeriphClockCmd;        
+//            dma_rcc             = RCC_AHB1Periph_DMA1;
+//            dma                 = DMA1;
+//            dma_channel         = DMA_Channel_4;
+//            dma_irq             = DMA1_Stream3_IRQn;
+//            dma_stream          = DMA1_Stream3;
+//        break;   
+//    
+//        case (uint32_t)UART4_BASE:
+//            /* gpio parament
+//            */
+//            gpio_af_usart       = GPIO_AF_UART4;
+//        
+//            /* usart parament
+//            */
+//            rcc_usart_clock_cmd = RCC_APB1PeriphClockCmd;
+//            usart_rcc           = RCC_APB1Periph_UART4;
+//            usart_irq           = UART4_IRQn;
+//            /* dma parament
+//            */
+//            rcc_dma_clock_cmd   = RCC_AHB1PeriphClockCmd;        
+//            dma_rcc             = RCC_AHB1Periph_DMA1;
+//            dma                 = DMA1;
+//            dma_channel         = DMA_Channel_4;
+//            dma_irq             = DMA1_Stream4_IRQn;
+//            dma_stream          = DMA1_Stream4;
+//        break;   
+//    
+//        case (uint32_t)UART5_BASE:
+//            /* gpio parament
+//            */
+//            gpio_af_usart       = GPIO_AF_UART5;
+//        
+//            /* usart parament
+//            */
+//            rcc_usart_clock_cmd = RCC_APB1PeriphClockCmd;
+//            usart_rcc           = RCC_APB1Periph_UART5;
+//            usart_irq           = UART5_IRQn;
+//            /* dma parament
+//            */
+//            rcc_dma_clock_cmd   = RCC_AHB1PeriphClockCmd;        
+//            dma_rcc             = RCC_AHB1Periph_DMA1;
+//            dma                 = DMA1;
+//            dma_channel         = DMA_Channel_4;
+//            dma_irq             = DMA1_Stream7_IRQn;
+//            dma_stream          = DMA1_Stream7;
+//        break;   
+//    
+//    }               
     usart_config(baud_rate);
     if(this->use_dma == 1)
     {
         dma_config();
     }
 }
+
+/**
+ *@name     USART::usart_config(uint32_t baud_rate)
+ *@brief    配置串口
+ *@param    USARTx:  USART1,2,3和UART4,5
+ *          baud_rate:  波特率
+ *@retval   None
+*/
 void Usart::usart_config(uint32_t baud_rate)
 {
- 	GPIO_InitTypeDef GPIO_InitStructure;
-  	USART_InitTypeDef USART_InitStructure;
-    
-    tx->mode(AF_PP,gpio_af_usart);
-    rx->mode(AF_PP,gpio_af_usart);
-    
-    rcc_usart_clock_cmd(usart_rcc,ENABLE);
-  	USART_InitStructure.USART_BaudRate = baud_rate;//波特率设置
-  	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-  	USART_InitStructure.USART_StopBits = USART_StopBits_1;
-  	USART_InitStructure.USART_Parity = USART_Parity_No;
-  	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-  	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx; 
-  	USART_Init(USARTx, &USART_InitStructure);
-    
-    USART_DMACmd(USARTx,USART_DMAReq_Tx,ENABLE);  
-   	USART_Cmd(USARTx, ENABLE);
-  	USART_ClearFlag(USARTx, USART_FLAG_TC);  
- 
-    interrupt(ENABLE);
+	/* (1) Enable GPIO clock and configures the USART pins **********************/
+
+  /* Enable the peripheral clock of GPIO Port */
+  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA);
+
+  /* Configure Tx Pin as : Alternate function, High Speed, Push pull, Pull up */
+  LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_2, LL_GPIO_MODE_ALTERNATE);
+  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_2, LL_GPIO_AF_1);
+  LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_2, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+  LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_2, LL_GPIO_OUTPUT_PUSHPULL);
+  LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_2, LL_GPIO_PULL_UP);
+
+  /* Configure Rx Pin as : Alternate function, High Speed, Push pull, Pull up */
+  LL_GPIO_SetPinMode(GPIOA, LL_GPIO_PIN_3, LL_GPIO_MODE_ALTERNATE);
+  LL_GPIO_SetAFPin_0_7(GPIOA, LL_GPIO_PIN_3, LL_GPIO_AF_1);
+  LL_GPIO_SetPinSpeed(GPIOA, LL_GPIO_PIN_3, LL_GPIO_SPEED_FREQ_VERY_HIGH);
+  LL_GPIO_SetPinOutputType(GPIOA, LL_GPIO_PIN_3, LL_GPIO_OUTPUT_PUSHPULL);
+  LL_GPIO_SetPinPull(GPIOA, LL_GPIO_PIN_3, LL_GPIO_PULL_UP);
+
+  /* (2) Enable USART2 peripheral clock and clock source ****************/
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2);
+
+  /* Set clock source */
+  LL_RCC_SetUSARTClockSource(LL_RCC_USART2_CLKSOURCE_PCLK1);
+
+  /* (3) Configure USART2 functional parameters ********************************/
+  
+  /* Disable USART prior modifying configuration registers */
+  /* Note: Commented as corresponding to Reset value */
+  // LL_USART_Disable(USART2);
+
+  /* TX/RX direction */
+  LL_USART_SetTransferDirection(USART2, LL_USART_DIRECTION_TX_RX);
+
+  /* 8 data bit, 1 start bit, 1 stop bit, no parity */
+  LL_USART_ConfigCharacter(USART2, LL_USART_DATAWIDTH_8B, LL_USART_PARITY_NONE, LL_USART_STOPBITS_1);
+
+  /* No Hardware Flow control */
+  /* Reset value is LL_USART_HWCONTROL_NONE */
+  // LL_USART_SetHWFlowCtrl(USART2, LL_USART_HWCONTROL_NONE);
+
+  /* Oversampling by 16 */
+  /* Reset value is LL_USART_OVERSAMPLING_16 */
+  // LL_USART_SetOverSampling(USART2, LL_USART_OVERSAMPLING_16);
+
+  /* Set Baudrate to 115200 using APB frequency set to 48000000 Hz */
+  /* Frequency available for USART peripheral can also be calculated through LL RCC macro */
+  /* Ex :
+      Periphclk = LL_RCC_GetUSARTClockFreq(Instance); or LL_RCC_GetUARTClockFreq(Instance); depending on USART/UART instance
+  
+      In this example, Peripheral Clock is expected to be equal to 48000000 Hz => equal to SystemCoreClock
+  */
+  LL_USART_SetBaudRate(USART2, SystemCoreClock, LL_USART_OVERSAMPLING_16, 115200); 
+
+  /* (4) Enable USART2 **********************************************************/
+  LL_USART_Enable(USART2);
+
+	
+// 	  GPIO_InitTypeDef GPIO_InitStructure;
+//  	USART_InitTypeDef USART_InitStructure;
+//    
+//    tx->mode(AF_PP,gpio_af_usart);
+//    rx->mode(AF_PP,gpio_af_usart);
+//    
+//    rcc_usart_clock_cmd(usart_rcc,ENABLE);
+//  	USART_InitStructure.USART_BaudRate = baud_rate;//波特率设置
+//  	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+//  	USART_InitStructure.USART_StopBits = USART_StopBits_1;
+//  	USART_InitStructure.USART_Parity = USART_Parity_No;
+//  	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+//  	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx; 
+//  	USART_Init(USARTx, &USART_InitStructure);
+//    
+//    USART_DMACmd(USARTx,USART_DMAReq_Tx,ENABLE);  
+//   	USART_Cmd(USARTx, ENABLE);
+//  	USART_ClearFlag(USARTx, USART_FLAG_TC);  
+// 
+//    interrupt(ENABLE);
 }
+
 void Usart::dma_config()
 {
-	NVIC_InitTypeDef NVIC_InitStructure ;
-	DMA_InitTypeDef DMA_InitStructure;
+	  /* DMA1 used for USART2 Transmission and Reception
+   */
+  /* (1) Enable the clock of DMA1 */
+  LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
 
-    //串口发DMA配置  
-    //启动DMA时钟
-    rcc_dma_clock_cmd(dma_rcc, ENABLE);//////////////////////
-    //DMA发送中断设置
-    NVIC_InitStructure.NVIC_IRQChannel = dma_irq;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
-    //DMA通道配置
-    DMA_DeInit(dma_stream);/////////////////////////////
-    DMA_InitStructure.DMA_Channel = dma_channel; /////////////////////
-    //外设地址
-    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(&USARTx->DR);/////////////////
-    //内存地址
-    DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)this->send_buf;//////////////////////////
-    //dma传输方向
-    DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
-    //设置DMA在传输时缓冲区的长度
-    DMA_InitStructure.DMA_BufferSize = uart_tx_length;///////////////////////////////
-    //设置DMA的外设递增模式，一个外设
-    DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-    //设置DMA的内存递增模式
-    DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-    //外设数据字长
-    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-    //内存数据字长
-    DMA_InitStructure.DMA_MemoryDataSize = DMA_PeripheralDataSize_Byte;
-    //设置DMA的传输模式
-    DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
-    //设置DMA的优先级别
-    DMA_InitStructure.DMA_Priority = DMA_Priority_High;
-    
-    //指定如果FIFO模式或直接模式将用于指定的流 ： 不使能FIFO模式  
-    DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;    
-    //指定了FIFO阈值水平
-    DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;        
-    //指定的Burst转移配置内存传输 
-    DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;       
-    //指定的Burst转移配置外围转移 */  
-    DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single; 
+  /* (2) Configure NVIC for DMA transfer complete/error interrupts */
+  NVIC_SetPriority(DMA1_Channel4_5_6_7_IRQn, 0);
+  NVIC_EnableIRQ(DMA1_Channel4_5_6_7_IRQn);
 
-    //配置DMA1的通道         
-    DMA_Init(dma_stream, &DMA_InitStructure);  //////////////////////////////////////////
-    //使能中断
-    DMA_ITConfig(dma_stream,DMA_IT_TC,ENABLE); /////////////////////
+  /* (3) Configure the DMA functional parameters for transmission */
+  LL_DMA_ConfigTransfer(DMA1, LL_DMA_CHANNEL_4, 
+                        LL_DMA_DIRECTION_MEMORY_TO_PERIPH | 
+                        LL_DMA_PRIORITY_HIGH              | 
+                        LL_DMA_MODE_NORMAL                | 
+                        LL_DMA_PERIPH_NOINCREMENT         | 
+                        LL_DMA_MEMORY_INCREMENT           | 
+                        LL_DMA_PDATAALIGN_BYTE            | 
+                        LL_DMA_MDATAALIGN_BYTE);
+  LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_4,
+                         (uint32_t)this->send_buf,/*(uint32_t)aTxBuffer,*/
+                         LL_USART_DMA_GetRegAddr(USART2, LL_USART_DMA_REG_DATA_TRANSMIT),
+                         LL_DMA_GetDataTransferDirection(DMA1, LL_DMA_CHANNEL_4));
+  LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_4,uart_tx_length/*ubNbDataToTransmit*/);
+
+  /* (4) Configure the DMA functional parameters for reception */
+//  LL_DMA_ConfigTransfer(DMA1, LL_DMA_CHANNEL_5, 
+//                        LL_DMA_DIRECTION_PERIPH_TO_MEMORY | 
+//                        LL_DMA_PRIORITY_HIGH              | 
+//                        LL_DMA_MODE_NORMAL                | 
+//                        LL_DMA_PERIPH_NOINCREMENT         | 
+//                        LL_DMA_MEMORY_INCREMENT           | 
+//                        LL_DMA_PDATAALIGN_BYTE            | 
+//                        LL_DMA_MDATAALIGN_BYTE);
+//  LL_DMA_ConfigAddresses(DMA1, LL_DMA_CHANNEL_5,
+//                         LL_USART_DMA_GetRegAddr(USART2, LL_USART_DMA_REG_DATA_RECEIVE),
+//                         (uint32_t)aRxBuffer,
+//                         LL_DMA_GetDataTransferDirection(DMA1, LL_DMA_CHANNEL_5));
+//  LL_DMA_SetDataLength(DMA1, LL_DMA_CHANNEL_5, ubNbDataToReceive);
+
+  /* (5) Enable DMA transfer complete/error interrupts  */
+  LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_4);
+  LL_DMA_EnableIT_TE(DMA1, LL_DMA_CHANNEL_4);
+//  LL_DMA_EnableIT_TC(DMA1, LL_DMA_CHANNEL_5);
+//  LL_DMA_EnableIT_TE(DMA1, LL_DMA_CHANNEL_5);
+	
+//	NVIC_InitTypeDef NVIC_InitStructure ;
+//	DMA_InitTypeDef DMA_InitStructure;
+
+//    //串口发DMA配置  
+//    //启动DMA时钟
+//    rcc_dma_clock_cmd(dma_rcc, ENABLE);//////////////////////
+//    //DMA发送中断设置
+//    NVIC_InitStructure.NVIC_IRQChannel = dma_irq;
+//    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+//    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+//    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+//    NVIC_Init(&NVIC_InitStructure);
+//    //DMA通道配置
+//    DMA_DeInit(dma_stream);/////////////////////////////
+//    DMA_InitStructure.DMA_Channel = dma_channel; /////////////////////
+//    //外设地址
+//    DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(&USARTx->DR);/////////////////
+//    //内存地址
+//    DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)this->send_buf;//////////////////////////
+//    //dma传输方向
+//    DMA_InitStructure.DMA_DIR = DMA_DIR_MemoryToPeripheral;
+//    //设置DMA在传输时缓冲区的长度
+//    DMA_InitStructure.DMA_BufferSize = uart_tx_length;///////////////////////////////
+//    //设置DMA的外设递增模式，一个外设
+//    DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+//    //设置DMA的内存递增模式
+//    DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+//    //外设数据字长
+//    DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+//    //内存数据字长
+//    DMA_InitStructure.DMA_MemoryDataSize = DMA_PeripheralDataSize_Byte;
+//    //设置DMA的传输模式
+//    DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+//    //设置DMA的优先级别
+//    DMA_InitStructure.DMA_Priority = DMA_Priority_High;
+//    
+//    //指定如果FIFO模式或直接模式将用于指定的流 ： 不使能FIFO模式  
+//    DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;    
+//    //指定了FIFO阈值水平
+//    DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;        
+//    //指定的Burst转移配置内存传输 
+//    DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;       
+//    //指定的Burst转移配置外围转移 */  
+//    DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single; 
+
+//    //配置DMA1的通道         
+//    DMA_Init(dma_stream, &DMA_InitStructure);  //////////////////////////////////////////
+//    //使能中断
+//    DMA_ITConfig(dma_stream,DMA_IT_TC,ENABLE); /////////////////////
 }
 
 void Usart::interrupt(FunctionalState enable)
 {
-    NVIC_InitTypeDef NVIC_InitStructure;
+	  /* Enable DMA RX Interrupt */
+// LL_USART_EnableDMAReq_RX(USART2);
 
-    USART_ITConfig(USARTx, USART_IT_RXNE, enable);
-    USART_ITConfig(USARTx, USART_IT_TC, enable);
-    USART_ClearITPendingBit(USARTx, USART_IT_TC);
+  /* Enable DMA TX Interrupt */
+  LL_USART_EnableDMAReq_TX(USART2);
 
-    NVIC_InitStructure.NVIC_IRQChannel = usart_irq;
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-    NVIC_Init(&NVIC_InitStructure);
+  /* Enable DMA Channel Rx */
+//  LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_5);
+
+  /* Enable DMA Channel Tx */
+  LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_4);
+//    NVIC_InitTypeDef NVIC_InitStructure;
+
+//    USART_ITConfig(USARTx, USART_IT_RXNE, enable);
+//    USART_ITConfig(USARTx, USART_IT_TC, enable);
+//    USART_ClearITPendingBit(USARTx, USART_IT_TC);
+
+//    NVIC_InitStructure.NVIC_IRQChannel = usart_irq;
+//    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+//    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+//    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+//    NVIC_Init(&NVIC_InitStructure);
 
 }
 /**
@@ -250,12 +390,12 @@ void Usart::attach_rx_interrupt(void (*callback_fun)(void))
     case (uint32_t)USART3_BASE:
         usart_callback_table[2][0] = callback_fun;
         break;
-    case (uint32_t)UART4_BASE:
-        usart_callback_table[3][0] = callback_fun;
-        break;
-    case (uint32_t)UART5_BASE:
-        usart_callback_table[4][0] = callback_fun;
-        break;
+//    case (uint32_t)UART4_BASE:
+//        usart_callback_table[3][0] = callback_fun;
+//        break;
+//    case (uint32_t)UART5_BASE:
+//        usart_callback_table[4][0] = callback_fun;
+//        break;
     }
 }
 
@@ -278,12 +418,12 @@ void Usart::attach_tx_interrupt(void (*callback_fun)(void))
     case (uint32_t)USART3_BASE:
         usart_callback_table[2][1] = callback_fun;
         break;
-    case (uint32_t)UART4_BASE:
-        usart_callback_table[3][1] = callback_fun;
-        break;
-    case (uint32_t)UART5_BASE:
-        usart_callback_table[4][1] = callback_fun;
-        break;
+//    case (uint32_t)UART4_BASE:
+//        usart_callback_table[3][1] = callback_fun;
+//        break;
+//    case (uint32_t)UART5_BASE:
+//        usart_callback_table[4][1] = callback_fun;
+//        break;
     }
 }
 /**
@@ -294,7 +434,7 @@ void Usart::attach_tx_interrupt(void (*callback_fun)(void))
 */
 uint16_t Usart::receive()
 {
-    return (uint16_t)(USARTx->DR & (uint16_t)0x01FF);
+    return (uint16_t)(USARTx->RDR & (uint16_t)0x01FF);
 }
 /**
  *@name     uint16_t USART::dma_send_string(const char *str,uint16_t length)
@@ -306,8 +446,10 @@ uint16_t Usart::receive()
 uint16_t Usart::dma_send_string(const char *str, uint16_t length)
 {
 //此函数有待优化，去掉第一个参数
-	DMA_SetCurrDataCounter(dma_stream,length);
- 	DMA_Cmd(dma_stream,ENABLE);
+//	DMA_SetCurrDataCounter(dma_stream,length);
+// 	DMA_Cmd(dma_stream,ENABLE);
+	LL_DMA_SetDataLength(DMA1,LL_DMA_CHANNEL_4,length);
+	LL_DMA_EnableChannel(DMA1, LL_DMA_CHANNEL_4);
     return length;
 }
 
@@ -319,8 +461,11 @@ uint16_t Usart::dma_send_string(const char *str, uint16_t length)
 */
 int Usart::put_char(uint16_t ch)
 {
-    while(USART_GetFlagStatus(USARTx, USART_FLAG_TXE) == RESET);//单字节等待，等待寄存器空
-    USART_SendData(USARTx, ch);
+	while (LL_USART_IsActiveFlag_TXE(USARTx)== RESET);
+	LL_USART_TransmitData8(USARTx,ch);
+	
+//    while(USART_GetFlagStatus(USARTx, USART_FLAG_TXE) == RESET);//单字节等待，等待寄存器空
+//    USART_SendData(USARTx, ch);
     return ch;
 }
 /**
@@ -340,8 +485,10 @@ void Usart::put_string(const char *str, uint16_t length)
     {
         while(length--)
         {
-            while(USART_GetFlagStatus(USARTx, USART_FLAG_TXE) == RESET);//单字节等待，等待寄存器空
-            USART_SendData(USARTx, *str++);
+					  while (LL_USART_IsActiveFlag_TXE(USARTx)== RESET);
+						LL_USART_TransmitData8(USARTx,*str++);
+//            while(USART_GetFlagStatus(USARTx, USART_FLAG_TXE) == RESET);//单字节等待，等待寄存器空
+//            USART_SendData(USARTx, *str++);
         }
     }
 }
@@ -441,12 +588,12 @@ void Usart::wait_busy()
     case (uint32_t)USART3_BASE:
         while(busy[2] == 1);
         break;
-    case (uint32_t)UART4_BASE:
-        while(busy[3] == 1);
-        break;
-    case (uint32_t)UART5_BASE:
-        while(busy[4] == 1);
-        break;
+//    case (uint32_t)UART4_BASE:
+//        while(busy[3] == 1);
+//        break;
+//    case (uint32_t)UART5_BASE:
+//        while(busy[4] == 1);
+//        break;
     }
 }
 
@@ -470,12 +617,12 @@ void Usart::set_busy()
     case (uint32_t)USART3_BASE:
         busy[2] = 1;
         break;
-    case (uint32_t)UART4_BASE:
-        busy[3] = 1;
-        break;
-    case (uint32_t)UART5_BASE:
-        busy[4] = 1;
-        break;
+//    case (uint32_t)UART4_BASE:
+//        busy[3] = 1;
+//        break;
+//    case (uint32_t)UART5_BASE:
+//        busy[4] = 1;
+//        break;
     }
 }
 
@@ -483,86 +630,89 @@ extern "C" {
 
     void USART1_IRQHandler(void)
     {
-        if(USART_GetITStatus(USART1, USART_IT_RXNE) == SET)
-        {
-            if(usart_callback_table[0][0] != 0)
-                usart_callback_table[0][0]();
-            USART_ClearITPendingBit(USART1, USART_IT_RXNE);
-        }
-        if(USART_GetITStatus(USART1, USART_IT_TC) == SET)
-        {
-            busy[0] = 0;
-            if(usart_callback_table[0][1] != 0)
-                usart_callback_table[0][1]();
-            USART_ClearITPendingBit(USART1, USART_IT_TC);
-        }
+		if (LL_USART_IsActiveFlag_RXNE(USART1) == SET )
+		{
+			if(usart_callback_table[0][0] != 0)
+               usart_callback_table[0][0]();
+			//LL_USART_ClearFlag_ORE
+		}	 
+//        if(USART_GetITStatus(USART1, USART_IT_RXNE) == SET)
+//        {
+//            if(usart_callback_table[0][0] != 0)
+//                usart_callback_table[0][0]();
+//            USART_ClearITPendingBit(USART1, USART_IT_RXNE);
+//        }
+//        if(USART_GetITStatus(USART1, USART_IT_TC) == SET)
+//        {
+//            busy[0] = 0;
+//            if(usart_callback_table[0][1] != 0)
+//                usart_callback_table[0][1]();
+//            USART_ClearITPendingBit(USART1, USART_IT_TC);
+//        }
     }
     void USART2_IRQHandler(void)
     {
-        if(USART_GetITStatus(USART2, USART_IT_RXNE) == SET)
-        {
-            if(usart_callback_table[1][0] != 0)
-                usart_callback_table[1][0]();
-            USART_ClearITPendingBit(USART2, USART_IT_RXNE);
-        }
-        if(USART_GetITStatus(USART2, USART_IT_TC) == SET)
-        {
-            busy[1] = 0;
-            if(usart_callback_table[1][1] != 0)
-                usart_callback_table[1][1]();
-            USART_ClearITPendingBit(USART2, USART_IT_TC);
-        }
+//        if(USART_GetITStatus(USART2, USART_IT_RXNE) == SET)
+//        {
+//            if(usart_callback_table[1][0] != 0)
+//                usart_callback_table[1][0]();
+//            USART_ClearITPendingBit(USART2, USART_IT_RXNE);
+//        }
+//        if(USART_GetITStatus(USART2, USART_IT_TC) == SET)
+//        {
+//            busy[1] = 0;
+//            if(usart_callback_table[1][1] != 0)
+//                usart_callback_table[1][1]();
+//            USART_ClearITPendingBit(USART2, USART_IT_TC);
+//        }
     }
     void USART3_IRQHandler(void)
     {
-        if(USART_GetITStatus(USART3, USART_IT_RXNE) == SET)
-        {
-            if(usart_callback_table[2][0] != 0)
-                usart_callback_table[2][0]();
-            USART_ClearITPendingBit(USART3, USART_IT_RXNE);
-        }
-        if(USART_GetITStatus(USART3, USART_IT_TC) == SET)
-        {
-            busy[2] = 0;
-            if(usart_callback_table[2][1] != 0)
-                usart_callback_table[2][1]();
-            USART_ClearITPendingBit(USART3, USART_IT_TC);
-        }
+//        if(USART_GetITStatus(USART3, USART_IT_RXNE) == SET)
+//        {
+//            if(usart_callback_table[2][0] != 0)
+//                usart_callback_table[2][0]();
+//            USART_ClearITPendingBit(USART3, USART_IT_RXNE);
+//        }
+//        if(USART_GetITStatus(USART3, USART_IT_TC) == SET)
+//        {
+//            busy[2] = 0;
+//            if(usart_callback_table[2][1] != 0)
+//                usart_callback_table[2][1]();
+//            USART_ClearITPendingBit(USART3, USART_IT_TC);
+//        }
     }
-    void UART4_IRQHandler(void)
-    {
-        if(USART_GetITStatus(UART4, USART_IT_RXNE) == SET)
-        {
-            if(usart_callback_table[3][0] != 0)
-                usart_callback_table[3][0]();
-            USART_ClearITPendingBit(UART4, USART_IT_RXNE);
-        }
-        if(USART_GetITStatus(UART4, USART_IT_TC) == SET)
-        {
-            busy[3] = 0;
-            if(usart_callback_table[3][1] != 0)
-                usart_callback_table[3][1]();
-            USART_ClearITPendingBit(UART4, USART_IT_TC);
-        }
-    }
-    void UART5_IRQHandler(void)
-    {
-        if(USART_GetITStatus(UART5, USART_IT_RXNE) == SET)
-        {
-            if(usart_callback_table[4][0] != 0)
-                usart_callback_table[4][0]();
-            USART_ClearITPendingBit(UART5, USART_IT_RXNE);
-        }
-        if(USART_GetITStatus(UART5, USART_IT_TC) == SET)
-        {
-            busy[4] = 0;
-            if(usart_callback_table[4][1] != 0)
-                usart_callback_table[4][1]();
-            USART_ClearITPendingBit(UART5, USART_IT_TC);
-        }
-    }
-
-
-
+//    void UART4_IRQHandler(void)
+//    {
+//        if(USART_GetITStatus(UART4, USART_IT_RXNE) == SET)
+//        {
+//            if(usart_callback_table[3][0] != 0)
+//                usart_callback_table[3][0]();
+//            USART_ClearITPendingBit(UART4, USART_IT_RXNE);
+//        }
+//        if(USART_GetITStatus(UART4, USART_IT_TC) == SET)
+//        {
+//            busy[3] = 0;
+//            if(usart_callback_table[3][1] != 0)
+//                usart_callback_table[3][1]();
+//            USART_ClearITPendingBit(UART4, USART_IT_TC);
+//        }
+//    }
+//    void UART5_IRQHandler(void)
+//    {
+//        if(USART_GetITStatus(UART5, USART_IT_RXNE) == SET)
+//        {
+//            if(usart_callback_table[4][0] != 0)
+//                usart_callback_table[4][0]();
+//            USART_ClearITPendingBit(UART5, USART_IT_RXNE);
+//        }
+//        if(USART_GetITStatus(UART5, USART_IT_TC) == SET)
+//        {
+//            busy[4] = 0;
+//            if(usart_callback_table[4][1] != 0)
+//                usart_callback_table[4][1]();
+//            USART_ClearITPendingBit(UART5, USART_IT_TC);
+//        }
+//    }
 
 }

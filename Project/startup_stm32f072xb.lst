@@ -424,13 +424,12 @@ ARM Macro Assembler    Page 7
               00000400 
               00000200 
               00000000 
-Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M0 --apcs=interw
-ork --depend=.\output\startup_stm32f072xb.d -o.\output\startup_stm32f072xb.o -I
-"E:\My program\MCU\ebox F0\Project\RTE" -ID:\Keil_v5\ARM\PACK\Keil\STM32F0xx_DF
-P\1.0.3\Device\Include -ID:\Keil_v5\ARM\CMSIS\Include --predefine="__UVISION_VE
-RSION SETA 516" --predefine="_RTE_ SETA 1" --predefine="STM32F072 SETA 1" --lis
-t=.\startup_stm32f072xb.lst ..\Libraries\CMSIS\Device\ST\STM32F0xx\Source\Templ
-ates\arm\startup_stm32f072xb.s
+Command Line: --debug --xref --cpu=Cortex-M0 --apcs=interwork --depend=.\output
+\startup_stm32f072xb.d -o.\output\startup_stm32f072xb.o -I"E:\My program\MCU\eb
+ox F0\Project\RTE" -I"D:\Program Files\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.
+0\Device\Include" --predefine="__EVAL SETA 1" --list=.\startup_stm32f072xb.lst 
+..\Libraries\CMSIS\Device\ST\STM32F0xx\Source\Templates\arm\startup_stm32f072xb
+.s
 
 
 
@@ -1171,4 +1170,4 @@ es\arm\startup_stm32f072xb.s
       None
 Comment: __use_two_region_memory unused
 3 symbols
-394 symbols in table
+392 symbols in table
