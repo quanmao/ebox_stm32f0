@@ -31,15 +31,15 @@ private:
     uint8_t             gpio_af_usart;
 
     USART_TypeDef       *USARTx;
-    void                (*rcc_usart_clock_cmd)(uint32_t rcc,FunctionalState state);
+    void                (*rcc_usart_clock_cmd)(uint32_t Periphs);
     uint32_t            usart_rcc;
-    uint8_t             usart_irq;
+ //   uint8_t             usart_irq;
     void                usart_config(uint32_t baud_rate);
 
     uint8_t             use_dma;
-    void                (*rcc_dma_clock_cmd)(uint32_t rcc,FunctionalState state);
+    void                (*rcc_dma_clock_cmd)(uint32_t Periphs);
     uint32_t            dma_rcc;//;
-    uint8_t             dma_irq;//DMA2_Stream7_IRQn;
+    IRQn_Type           dma_irq;//DMA2_Stream7_IRQn;
     DMA_TypeDef         *dma;
     uint32_t            dma_channel;
 //    DMA_Stream_TypeDef  *dma_stream;

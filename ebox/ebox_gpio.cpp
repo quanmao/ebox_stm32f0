@@ -38,9 +38,6 @@ Gpio::Gpio(GPIO_TypeDef *port, uint16_t pin)
 		temp1 = 5;
 		break;
 
-//        case (uint32_t)GPIOG_BASE:
-//            temp1 = 6;
-//        break;
 	default:
 		temp1 = 0;
 		break;
