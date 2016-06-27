@@ -427,9 +427,8 @@ ARM Macro Assembler    Page 7
 Command Line: --debug --xref --cpu=Cortex-M0 --apcs=interwork --depend=.\output
 \startup_stm32f072xb.d -o.\output\startup_stm32f072xb.o -I"E:\My program\MCU\eb
 ox F0\Project\RTE" -I"D:\Program Files\Keil_v5\ARM\PACK\Keil\STM32F0xx_DFP\1.4.
-0\Device\Include" --predefine="__EVAL SETA 1" --list=.\startup_stm32f072xb.lst 
-..\Libraries\CMSIS\Device\ST\STM32F0xx\Source\Templates\arm\startup_stm32f072xb
-.s
+0\Device\Include" --list=.\startup_stm32f072xb.lst ..\Libraries\CMSIS\Device\ST
+\STM32F0xx\Source\Templates\arm\startup_stm32f072xb.s
 
 
 
@@ -1170,4 +1169,4 @@ es\arm\startup_stm32f072xb.s
       None
 Comment: __use_two_region_memory unused
 3 symbols
-392 symbols in table
+391 symbols in table
