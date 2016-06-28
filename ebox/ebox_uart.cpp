@@ -1,3 +1,13 @@
+/**
+  ******************************************************************************
+  * @file    ebox_uart.cpp
+  * @author  LQM
+  * @version V1.0.0
+  * @brief   usart1,2,3
+  * @log  
+  * @date    2016.6.28   移植到基于HAL固件库STM32F0平台
+  ******************************************************************************
+  */
 #include "ebox_uart.h"
 #include <stdio.h>
 #include <stdarg.h>
@@ -8,6 +18,7 @@ callback_fun_type usart_callback_table[5][2];//支持串口的rx中断
 #define uart_tx_length   100
 uint8_t uart_tx_buf[uart_tx_length];
 volatile uint8_t busy[5];
+
 /**
  *@name     USART::USART(USART_TypeDef *USARTx,GPIO *tx_pin,GPIO *rx_pin)
  *@brief    串口的构造函数
@@ -40,7 +51,7 @@ void Usart::begin(uint32_t baud_rate)
  *@brief    启动串口
  *@param    USARTx:  USART1,2,3和UART4,5
  *          baud_rate:  波特率
- *		      use_dma： 是否使用DMA
+ *		    use_dma： 是否使用DMA
  *@retval   None
 */
 void Usart::begin(uint32_t baud_rate,uint8_t use_dma)
@@ -49,32 +60,27 @@ void Usart::begin(uint32_t baud_rate,uint8_t use_dma)
 //    // 配置各串口参数
    switch((uint32_t)USARTx)
    {
-      // case (uint32_t)USART1_BASE:
-          // /* gpio parament
-          // */
-          // gpio_af_usart       = GPIO_AF1_USART1;
-      
-          // /* usart parament
-          // */
-          // rcc_usart_clock_cmd = RCC_APB2PeriphClockCmd;
-          // usart_rcc           = RCC_APB2Periph_USART1;
-          // usart_irq           = USART1_IRQn;
-          // /* dma parament
-          // */
-          // rcc_dma_clock_cmd   = RCC_AHB1PeriphClockCmd;        
-          // dma_rcc             = RCC_AHB1Periph_DMA2;
-          // dma_irq             = DMA2_Stream7_IRQn;
-          // dma                 = DMA2;
-          // dma_channel         = DMA_Channel_4;
-          // dma_stream          = DMA2_Stream7;
-      // break;
+        case (uint32_t)USART1_BASE:
+		   // GPIO Parameter
+           gpio_af_usart       = GPIO_AF1_USART1; 
+		   // USART Parameter：时钟，中断
+           rcc_usart_clock_cmd = LL_APB1_GRP2_EnableClock;
+           usart_rcc           = LL_APB1_GRP2_PERIPH_USART1;
+           usart_irq           = USART1_IRQn;
+		   // DMA Parameter
+           rcc_dma_clock_cmd   = LL_AHB1_GRP1_EnableClock;        
+           dma_rcc             = LL_AHB1_GRP1_PERIPH_DMA1;
+           dma                 = DMA1;
+           dma_channel         = LL_DMA_CHANNEL_3;
+           dma_irq             = DMA1_Channel4_5_6_7_IRQn;
+       break;
        
        case (uint32_t)USART2_BASE:
 		   // GPIO Parameter
-           gpio_af_usart       = GPIO_AF1_USART2; //GPIO_AF_USART2;
-		   // USART Parameter
-//           rcc_usart_clock_cmd = LL_AHB1_GRP1_EnableClock;
-//           usart_rcc           = LL_AHB1_GRP1_PERIPH_GPIOA;
+           gpio_af_usart       = GPIO_AF1_USART2;
+		   // USART Parameter：时钟，中断
+           rcc_usart_clock_cmd = LL_APB1_GRP1_EnableClock;
+           usart_rcc           = LL_APB1_GRP1_PERIPH_USART2;
            usart_irq           = USART2_IRQn;
 		   // DMA Parameter
            rcc_dma_clock_cmd   = LL_AHB1_GRP1_EnableClock;        
@@ -165,26 +171,15 @@ void Usart::usart_config(uint32_t baud_rate)
 	tx->mode(AF_PP_PU,gpio_af_usart);
 	rx->mode(AF_PP_PU,gpio_af_usart);
 	/* (2) Enable USART2 peripheral clock and clock source ****************/
-	LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2);
+	rcc_usart_clock_cmd(usart_rcc);
+	//LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2);
 	/* Set clock source */
-	LL_RCC_SetUSARTClockSource(LL_RCC_USART2_CLKSOURCE_PCLK1);
+//	LL_RCC_SetUSARTClockSource(LL_RCC_USART2_CLKSOURCE_PCLK1);
 	/* (3) Configure USART2 functional parameters ********************************/
-
-	/* Disable USART prior modifying configuration registers */
-	/* Note: Commented as corresponding to Reset value */
-    // LL_USART_Disable(USARTx);
 	/* TX/RX direction */
 	LL_USART_SetTransferDirection(USARTx, LL_USART_DIRECTION_TX_RX);
 	/* 8 data bit, 1 start bit, 1 stop bit, no parity */
 	LL_USART_ConfigCharacter(USARTx, LL_USART_DATAWIDTH_8B, LL_USART_PARITY_NONE, LL_USART_STOPBITS_1);
-
-	/* No Hardware Flow control */
-	/* Reset value is LL_USART_HWCONTROL_NONE */
-	// LL_USART_SetHWFlowCtrl(USART2, LL_USART_HWCONTROL_NONE);
-
-	/* Oversampling by 16 */
-	/* Reset value is LL_USART_OVERSAMPLING_16 */
-	// LL_USART_SetOverSampling(USART2, LL_USART_OVERSAMPLING_16);
 
 	/* Set Baudrate to 115200 using APB frequency set to 48000000 Hz */
 	/* Frequency available for USART peripheral can also be calculated through LL RCC macro */
@@ -208,10 +203,7 @@ void Usart::dma_config()
 {
   /* (1) Enable the clock of DMA1 */
   rcc_dma_clock_cmd(dma_rcc);
-  /* (2) Configure NVIC for DMA transfer complete/error interrupts */
-  NVIC_SetPriority(dma_irq, 0);
-  NVIC_EnableIRQ(dma_irq);
-  /* (3) Configure the DMA functional parameters for transmission */
+  /* (2) Configure the DMA functional parameters for transmission */
   LL_DMA_ConfigTransfer(dma, dma_channel, 
                         LL_DMA_DIRECTION_MEMORY_TO_PERIPH | 
                         LL_DMA_PRIORITY_HIGH              | 
@@ -228,20 +220,14 @@ void Usart::dma_config()
   
   /* Enable DMA TX Request */
   LL_USART_EnableDMAReq_TX(USARTx);
-  /* Enable DMA Channel Tx */
-  //LL_DMA_EnableChannel(dma, dma_channel);
-
-  /* (5) Enable DMA transfer complete/error interrupts  */
-  LL_DMA_EnableIT_TC(dma, dma_channel);
 }
 
 void Usart::interrupt(FunctionalState enable)
 {
-	// 附加中断会掉函数是，打开中断
-  NVIC_SetPriority(usart_irq, 0);
-  NVIC_EnableIRQ(usart_irq);
-  LL_USART_EnableIT_TC(USARTx);	
-	LL_USART_EnableIT_RXNE(USARTx);
+	// 附加中断会掉函数时，打开中断
+	NVIC_SetPriority(usart_irq, 0);
+	NVIC_EnableIRQ(usart_irq);
+	LL_USART_EnableIT_TC(USARTx);
 }
 /**
  *@name     void USART::attach_rx_interrupt(void (*callback_fun)(void))
@@ -251,6 +237,7 @@ void Usart::interrupt(FunctionalState enable)
 */
 void Usart::attach_rx_interrupt(void (*callback_fun)(void))
 {
+	/* (1) 注册中断回调函数 */
 	switch ((uint32_t)USARTx)
 	{
 	case (uint32_t)USART1_BASE:
@@ -269,8 +256,7 @@ void Usart::attach_rx_interrupt(void (*callback_fun)(void))
 //        usart_callback_table[4][0] = callback_fun;
 //        break;
 	}
-	NVIC_SetPriority(usart_irq, 0);
-	NVIC_EnableIRQ(usart_irq);
+	/* (2) ENABLE USART RXNE interrupts */
 	LL_USART_EnableIT_RXNE(USARTx);
 }
 
@@ -282,6 +268,7 @@ void Usart::attach_rx_interrupt(void (*callback_fun)(void))
 */
 void Usart::attach_tx_interrupt(void (*callback_fun)(void))
 {
+	/* (1) 注册中断回调函数 */
 	switch ((uint32_t)USARTx)
 	{
 	case (uint32_t)USART1_BASE:
@@ -300,9 +287,6 @@ void Usart::attach_tx_interrupt(void (*callback_fun)(void))
 //        usart_callback_table[4][1] = callback_fun;
 //        break;
 	}
-	NVIC_SetPriority(usart_irq, 0);
-	NVIC_EnableIRQ(usart_irq);
-	LL_USART_EnableIT_TC(USARTx);
 }
 /**
  *@name     uint16_t USART::receive()
@@ -324,12 +308,11 @@ uint16_t Usart::receive()
 uint16_t Usart::dma_send_string(const char *str, uint16_t length)
 {
 //此函数有待优化，去掉第一个参数
-//	DMA_SetCurrDataCounter(dma_stream,length);
-// 	DMA_Cmd(dma_stream,ENABLE);
+// DMA非连续模式，必须要先关闭通道，再打开才能写入数据
 //	LL_DMA_DisableChannel(dma, dma_channel);
 	LL_DMA_SetDataLength(dma,dma_channel,length);
 	LL_DMA_EnableChannel(dma,dma_channel);
-  return length;
+	return length;
 }
 
 /**
@@ -353,18 +336,18 @@ int Usart::put_char(uint16_t ch)
 */
 void Usart::put_string(const char *str, uint16_t length)
 {
-    if(this->use_dma == 1)
-    {
-        dma_send_string(str, length);
-    }
-    else
-    {
-        while(length--)
-        {
-					  while (LL_USART_IsActiveFlag_TXE(USARTx)== RESET);
-						LL_USART_TransmitData8(USARTx,*str++);
-        }
-    }
+	if (this->use_dma == 1)
+	{
+		dma_send_string(str, length);
+	}
+	else
+	{
+		while (length--)
+		{
+			while (LL_USART_IsActiveFlag_TXE(USARTx)== RESET);
+			LL_USART_TransmitData8(USARTx,*str++);
+		}
+	}
 }
 /**
  *@name     void USART::put_string(const char *str)
@@ -526,76 +509,24 @@ extern "C" {
 	{
 		if (LL_USART_IsActiveFlag_RXNE(USART2) == SET )
 		{
-			if (usart_callback_table[0][0] != 0)
-				usart_callback_table[0][0]();
-			LL_USART_RequestRxDataFlush(USART2);
-			LL_USART_ClearFlag_ORE(USART2);			
+			// 调用接收中断回调函数
+			if (usart_callback_table[1][0] != 0)
+				usart_callback_table[1][0]();
+			// 如果回调函数中没有读取数据，则将当前数据抛弃，准备下一次接收
+			if (LL_USART_IsActiveFlag_RXNE(USART2) == SET )
+			{
+				LL_USART_RequestRxDataFlush(USART2);
+			}
 		}
 		if (LL_USART_IsActiveFlag_TC(USART2) == SET)
 		{
+			// 清除忙标志，调用发送结束回调函数
 			busy[1] = 0;
 			if (usart_callback_table[1][1] != 0)
 				usart_callback_table[1][1]();
+			// 清除发送结束中断标志
 			LL_USART_ClearFlag_TC(USART2);
-		}
-	}
-	void USART3_IRQHandler(void)
-	{
-//        if(USART_GetITStatus(USART3, USART_IT_RXNE) == SET)
-//        {
-//            if(usart_callback_table[2][0] != 0)
-//                usart_callback_table[2][0]();
-//            USART_ClearITPendingBit(USART3, USART_IT_RXNE);
-//        }
-//        if(USART_GetITStatus(USART3, USART_IT_TC) == SET)
-//        {
-//            busy[2] = 0;
-//            if(usart_callback_table[2][1] != 0)
-//                usart_callback_table[2][1]();
-//            USART_ClearITPendingBit(USART3, USART_IT_TC);
-//        }
-	}
-//    void UART4_IRQHandler(void)
-//    {
-//        if(USART_GetITStatus(UART4, USART_IT_RXNE) == SET)
-//        {
-//            if(usart_callback_table[3][0] != 0)
-//                usart_callback_table[3][0]();
-//            USART_ClearITPendingBit(UART4, USART_IT_RXNE);
-//        }
-//        if(USART_GetITStatus(UART4, USART_IT_TC) == SET)
-//        {
-//            busy[3] = 0;
-//            if(usart_callback_table[3][1] != 0)
-//                usart_callback_table[3][1]();
-//            USART_ClearITPendingBit(UART4, USART_IT_TC);
-//        }
-//    }
-//    void UART5_IRQHandler(void)
-//    {
-//        if(USART_GetITStatus(UART5, USART_IT_RXNE) == SET)
-//        {
-//            if(usart_callback_table[4][0] != 0)
-//                usart_callback_table[4][0]();
-//            USART_ClearITPendingBit(UART5, USART_IT_RXNE);
-//        }
-//        if(USART_GetITStatus(UART5, USART_IT_TC) == SET)
-//        {
-//            busy[4] = 0;
-//            if(usart_callback_table[4][1] != 0)
-//                usart_callback_table[4][1]();
-//            USART_ClearITPendingBit(UART5, USART_IT_TC);
-//        }
-//    }
-	void DMA1_Channel4_5_6_7_IRQHandler(void)
-	{
-		if (LL_DMA_IsActiveFlag_TC4(DMA1))
-		{
-			LL_DMA_ClearFlag_GI4(DMA1);
 			LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_4);
-			/* Call function Transmission complete Callback */
-			busy[1] = 0;
 		}
 	}
-
 }
