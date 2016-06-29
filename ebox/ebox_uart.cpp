@@ -14,10 +14,11 @@
 #include "string.h"
 
 
-callback_fun_type usart_callback_table[5][2];//支持串口的rx中断
+
 #define uart_tx_length   100
 uint8_t uart_tx_buf[uart_tx_length];
 volatile uint8_t busy[5];
+callback_fun_type usart_callback_table[5][2];//支持串口的rx中断
 
 /**
  *@name     USART::USART(USART_TypeDef *USARTx,GPIO *tx_pin,GPIO *rx_pin)
@@ -71,8 +72,7 @@ void Usart::begin(uint32_t baud_rate,uint8_t use_dma)
            rcc_dma_clock_cmd   = LL_AHB1_GRP1_EnableClock;        
            dma_rcc             = LL_AHB1_GRP1_PERIPH_DMA1;
            dma                 = DMA1;
-           dma_channel         = LL_DMA_CHANNEL_3;
-           dma_irq             = DMA1_Channel4_5_6_7_IRQn;
+           dma_channel         = LL_DMA_CHANNEL_2;
        break;
        
        case (uint32_t)USART2_BASE:
@@ -87,68 +87,7 @@ void Usart::begin(uint32_t baud_rate,uint8_t use_dma)
            dma_rcc             = LL_AHB1_GRP1_PERIPH_DMA1;
            dma                 = DMA1;
            dma_channel         = LL_DMA_CHANNEL_4;
-           dma_irq             = DMA1_Channel4_5_6_7_IRQn;
        break;
-//       
-//       case (uint32_t)USART3_BASE:
-//           /* gpio parament
-//           */
-//           gpio_af_usart       = GPIO_AF_USART3;
-//       
-//           /* usart parament
-//           */
-//           rcc_usart_clock_cmd = RCC_APB1PeriphClockCmd;
-//           usart_rcc           = RCC_APB1Periph_USART3;
-//           usart_irq           = USART3_IRQn;
-//           /* dma parament
-//           */
-//           rcc_dma_clock_cmd   = RCC_AHB1PeriphClockCmd;        
-//           dma_rcc             = RCC_AHB1Periph_DMA1;
-//           dma                 = DMA1;
-//           dma_channel         = DMA_Channel_4;
-//           dma_irq             = DMA1_Stream3_IRQn;
-//           dma_stream          = DMA1_Stream3;
-//       break;   
-//   
-//       case (uint32_t)UART4_BASE:
-//           /* gpio parament
-//           */
-//           gpio_af_usart       = GPIO_AF_UART4;
-//       
-//           /* usart parament
-//           */
-//           rcc_usart_clock_cmd = RCC_APB1PeriphClockCmd;
-//           usart_rcc           = RCC_APB1Periph_UART4;
-//           usart_irq           = UART4_IRQn;
-//           /* dma parament
-//           */
-//           rcc_dma_clock_cmd   = RCC_AHB1PeriphClockCmd;        
-//           dma_rcc             = RCC_AHB1Periph_DMA1;
-//           dma                 = DMA1;
-//           dma_channel         = DMA_Channel_4;
-//           dma_irq             = DMA1_Stream4_IRQn;
-//           dma_stream          = DMA1_Stream4;
-//       break;   
-//   
-//       case (uint32_t)UART5_BASE:
-//           /* gpio parament
-//           */
-//           gpio_af_usart       = GPIO_AF_UART5;
-//       
-//           /* usart parament
-//           */
-//           rcc_usart_clock_cmd = RCC_APB1PeriphClockCmd;
-//           usart_rcc           = RCC_APB1Periph_UART5;
-//           usart_irq           = UART5_IRQn;
-//           /* dma parament
-//           */
-//           rcc_dma_clock_cmd   = RCC_AHB1PeriphClockCmd;        
-//           dma_rcc             = RCC_AHB1Periph_DMA1;
-//           dma                 = DMA1;
-//           dma_channel         = DMA_Channel_4;
-//           dma_irq             = DMA1_Stream7_IRQn;
-//           dma_stream          = DMA1_Stream7;
-//       break;   
    
    }               
     usart_config(baud_rate);
@@ -249,13 +188,7 @@ void Usart::attach_rx_interrupt(void (*callback_fun)(void))
 	case (uint32_t)USART3_BASE:
 		usart_callback_table[2][0] = callback_fun;
 		break;
-//    case (uint32_t)UART4_BASE:
-//        usart_callback_table[3][0] = callback_fun;
-//        break;
-//    case (uint32_t)UART5_BASE:
-//        usart_callback_table[4][0] = callback_fun;
-//        break;
-	}
+}
 	/* (2) ENABLE USART RXNE interrupts */
 	LL_USART_EnableIT_RXNE(USARTx);
 }
@@ -280,12 +213,6 @@ void Usart::attach_tx_interrupt(void (*callback_fun)(void))
 	case (uint32_t)USART3_BASE:
 		usart_callback_table[2][1] = callback_fun;
 		break;
-//    case (uint32_t)UART4_BASE:
-//        usart_callback_table[3][1] = callback_fun;
-//        break;
-//    case (uint32_t)UART5_BASE:
-//        usart_callback_table[4][1] = callback_fun;
-//        break;
 	}
 }
 /**
@@ -488,23 +415,27 @@ extern "C" {
 	{
 		if (LL_USART_IsActiveFlag_RXNE(USART1) == SET )
 		{
+			// 调用接收中断回调函数
 			if (usart_callback_table[0][0] != 0)
 				usart_callback_table[0][0]();
+			// 如果回调函数中没有读取数据，则将当前数据抛弃，准备下一次接收
+			if (LL_USART_IsActiveFlag_RXNE(USART1) == SET )
+			{
+				LL_USART_RequestRxDataFlush(USART1);
+			}
 		}
-//        if(USART_GetITStatus(USART1, USART_IT_RXNE) == SET)
-//        {
-//            if(usart_callback_table[0][0] != 0)
-//                usart_callback_table[0][0]();
-//            USART_ClearITPendingBit(USART1, USART_IT_RXNE);
-//        }
-//        if(USART_GetITStatus(USART1, USART_IT_TC) == SET)
-//        {
-//            busy[0] = 0;
-//            if(usart_callback_table[0][1] != 0)
-//                usart_callback_table[0][1]();
-//            USART_ClearITPendingBit(USART1, USART_IT_TC);
-//        }
+		if (LL_USART_IsActiveFlag_TC(USART1) == SET)
+		{
+			// 清除忙标志，调用发送结束回调函数
+			busy[0] = 0;
+			if (usart_callback_table[0][1] != 0)
+				usart_callback_table[0][1]();
+			// 清除发送结束中断标志
+			LL_USART_ClearFlag_TC(USART1);
+			LL_DMA_DisableChannel(DMA1, LL_DMA_CHANNEL_2);
+		}
 	}
+
 	void USART2_IRQHandler(void)
 	{
 		if (LL_USART_IsActiveFlag_RXNE(USART2) == SET )
