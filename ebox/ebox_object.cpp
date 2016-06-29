@@ -16,7 +16,7 @@ This specification is preliminary and is subject to change at any time without n
 
 #include "ebox.h"
 
-//Usart uart1(USART1,&PA9,&PA10);
+Usart uart1(USART1,&PA9,&PA10);
 ////Usart uart1(USART1,&PB6,&PB7);
 Usart uart2(USART2,&PA2,&PA3);
 ////Usart uart2(USART2,&PD5,&PD6);
