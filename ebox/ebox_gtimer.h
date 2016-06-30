@@ -22,9 +22,6 @@ This specification is preliminary and is subject to change at any time without n
 	2.提供一个1-1Mhz的定时中断
 */
 
-
-
-
 class TIM
 {
 public:
