@@ -45,8 +45,8 @@ Copyright 2015 shentq. All Rights Reserved.
 // }
 
 FLASHCLASS flash;//创建一个内部 flash 读写对象
-uint8_t wbuf[10] = {0,1,2,3,4,5,6,7,8,9};
-uint8_t rbuf[10];
+uint16_t wbuf[10] = {0,1,2,3,4,5,6,7,8,2};
+uint16_t rbuf[10];
 void setup()
 {
 	ebox_init();
@@ -64,7 +64,7 @@ int main(void)
 //wbuf[i] = random(100);
 //}
 		flash.erase_sector(ADDR_FLASH_PAGE_15);
-		flash.write_sector(ADDR_FLASH_PAGE_15,wbuf,10);//将写缓冲区的内容写入内部 flash
+		flash.write_sector(ADDR_FLASH_PAGE_15,(uint16_t*)wbuf,9);//将写缓冲区的内容写入内部 flash
 		uart1.printf("write data\r\n");
 		for (int i = 0; i <10; i++)
 		{
@@ -72,7 +72,7 @@ int main(void)
 		}
 		uart1.printf("\r\n");
 		uart1.printf("read data\r\n");
-		flash.read(ADDR_FLASH_PAGE_15,rbuf,10);//将内部 flash 中的内容读取到读缓冲区
+		flash.read(ADDR_FLASH_PAGE_15,(uint16_t*)rbuf,10);//将内部 flash 中的内容读取到读缓冲区
 		for (int i = 0; i <10; i++)
 		{
 			uart1.printf("%02d ",rbuf[i]);
