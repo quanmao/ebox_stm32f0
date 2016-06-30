@@ -94,12 +94,11 @@ class FLASHCLASS
 {
 public:
     int erase_sector(FLASH_SECTOR_ADDR_t start_addr);
-    int read(uint32_t start_addr, uint8_t *buf, int32_t num_to_read) ;
-    int write_sector(FLASH_SECTOR_ADDR_t start_addr, uint8_t *buf, uint32_t num_to_write);
+    int read(uint32_t start_addr, uint16_t *buf, int32_t num_to_read) ;
+    int write_sector(FLASH_SECTOR_ADDR_t start_addr, uint16_t *buf, uint32_t num_to_write);
 private:
-    uint16_t write_without_check(uint32_t iAddress, uint8_t *buf, uint16_t iNumByteToWrite);
+    uint16_t write_without_check(uint32_t iAddress, uint16_t *buf, uint16_t iNumByteToWrite);
     uint16_t addr_to_sector(uint32_t Address);
 };
-
 
 #endif

@@ -30,10 +30,7 @@ int FLASHCLASS::erase_sector(FLASH_SECTOR_ADDR_t start_addr)
 	uint32_t PageError = 0;
 
 	HAL_FLASH_Unlock();
-	/* Clear pending flags (if any) */
-	// FLASH_ClearFlag(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |
-	// FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR|FLASH_FLAG_PGSERR);
-	/* Fill EraseInit structure*/
+
 	EraseInitStruct.TypeErase = FLASH_TYPEERASE_PAGES;
 	EraseInitStruct.PageAddress = start_addr;
 	EraseInitStruct.NbPages = 1;
@@ -49,7 +46,7 @@ int FLASHCLASS::erase_sector(FLASH_SECTOR_ADDR_t start_addr)
 	HAL_FLASH_Lock();
 }
 
-int FLASHCLASS::write_sector(FLASH_SECTOR_ADDR_t start_addr, uint8_t *buf, uint32_t num_to_write)
+int FLASHCLASS::write_sector(FLASH_SECTOR_ADDR_t start_addr, uint16_t *buf, uint32_t num_to_write)
 {
 
     HAL_FLASH_Unlock();
@@ -70,13 +67,14 @@ int FLASHCLASS::write_sector(FLASH_SECTOR_ADDR_t start_addr, uint8_t *buf, uint3
     HAL_FLASH_Lock();
     return num_to_write;
 }
-int FLASHCLASS::read(uint32_t Address, uint8_t *buf, int32_t num_to_read)
+int FLASHCLASS::read(uint32_t Address, uint16_t *buf, int32_t num_to_read)
 {
     int i = 0;
     while(i < num_to_read )
     {
-        *(buf + i) = *(__IO uint8_t *) Address++;
+        *(buf + i) = *(__IO uint16_t*) Address;
         i+=1;
+        Address = Address + 2;
     }
     return i;
 }
@@ -140,21 +138,18 @@ uint16_t FLASHCLASS::addr_to_sector(uint32_t Address)
 			iNumByteToWrite 要写入多少数据
  *@retval   NONE
 */
-uint16_t FLASHCLASS::write_without_check(uint32_t iAddress, uint8_t *buf, uint16_t iNumByteToWrite)
+uint16_t FLASHCLASS::write_without_check(uint32_t iAddress, uint16_t *buf, uint16_t iNumByteToWrite)
 {
-    uint16_t i;
-	uint32_t dat;
-    volatile HAL_StatusTypeDef FLASHStatus = HAL_OK;
-    i = 0;
-    //    FLASH_UnlockBank1();
-    while((i < iNumByteToWrite) && (FLASHStatus == HAL_OK))
-    {
-		dat = *(uint32_t *)buf;
-        //FLASHStatus = FLASH_ProgramWord(iAddress, *(uint32_t *)buf);
-		FLASHStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD,iAddress, (uint8_t) *buf);
-        i = i + 4;
-        iAddress = iAddress + 2;
-        buf = buf + 1;
-    }
-    return iNumByteToWrite;
+	uint16_t i;
+	volatile HAL_StatusTypeDef FLASHStatus = HAL_OK;
+	i = 0;
+
+	while ((i < iNumByteToWrite) && (FLASHStatus == HAL_OK))
+	{
+		FLASHStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD,iAddress, *buf);
+		i = i + 1;
+		iAddress = iAddress + 2;
+		buf = buf + 1;
+	}
+	return iNumByteToWrite;
 }
