@@ -9,12 +9,12 @@
 //#include "ebox_spi.h"
 //#include "ebox_i2c.h"
 //#include "ebox_pwm.h"
-//#include "ebox_iflash.h"
+#include "ebox_iflash.h"
 
 
-//extern Usart uart1;
+extern Usart uart1;
 ////Usart uart1(USART1,&PB6,&PB7);
-extern Usart uart2;
+//extern Usart uart2;
 //extern Usart uart3;
 
 extern Gpio PA0;
