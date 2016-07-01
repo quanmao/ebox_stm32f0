@@ -3,7 +3,7 @@ file   : gtimer.cpp
 author : shentq
 version: V1.1
 date   : 2015/7/5
-
+date   : 2016/6/30 LQM移植到STM32F0平台
 Copyright 2015 shentq. All Rights Reserved.
 
 Copyright Notice
@@ -26,6 +26,12 @@ TIM::TIM(TIM_TypeDef *TIMx)
     _TIMx = TIMx;
 }
 
+/**
+ *@name     void TIM::begin(uint32_t frq)
+ *@brief    根据需要的频率计算预分频以及重载值参数
+ *@param    frq:  频率
+ *@retval   None
+*/
 void TIM::begin(uint32_t frq)
 {
     uint32_t _period  = 0;
@@ -33,28 +39,37 @@ void TIM::begin(uint32_t frq)
     if(frq >= 1000000)frq = 1000000;
     for(; _prescaler <= 0xffff; _prescaler++)
     {
-        _period = 84000000 / _prescaler / frq;
+        //_period = 84000000 / _prescaler / frq;
+		    _period = __LL_TIM_CALC_ARR(SystemCoreClock, _prescaler, frq);
         if((0xffff >= _period))break;
-    }
+    }	
 
     base_init(_period, _prescaler);
 }
+
 void TIM::reset_frq(uint32_t frq)
 {
     begin(frq);
     interrupt(ENABLE);
     start();
 }
+
+/**
+ *@name     void TIM::attach_interrupt(void(*callback)(void))
+ *@brief    绑定TIM中断所调用的用户程序
+ *@param    callback_fun:  用户函数
+ *@retval   None
+*/
 void TIM::attach_interrupt(void(*callback)(void))
 {
-//    switch((uint32_t)_TIMx)
-//    {
-//    case (uint32_t)TIM2_BASE:
-//        timx_cb_table[1][0] = callback;
-//        break;
-//    case (uint32_t)TIM3_BASE:
-//        timx_cb_table[2][0] = callback;
-//        break;
+    switch((uint32_t)_TIMx)
+    {
+    case (uint32_t)TIM2_BASE:
+        timx_cb_table[1][0] = callback;
+        break;
+    case (uint32_t)TIM3_BASE:
+        timx_cb_table[2][0] = callback;
+        break;
 //    case (uint32_t)TIM4_BASE:
 //        timx_cb_table[3][0] = callback;
 //        break;
@@ -67,72 +82,60 @@ void TIM::attach_interrupt(void(*callback)(void))
 //    case (uint32_t)TIM7_BASE:
 //        timx_cb_table[6][0] = callback;
 //        break;
-//    }
+    }
 }
+
 void TIM::interrupt(FunctionalState enable)
 {
-//    TIM_ClearITPendingBit(_TIMx , TIM_FLAG_Update);//必须加，否则开启中断会立即产生一次中断
-//    TIM_ITConfig(_TIMx, TIM_IT_Update, enable);
+    //必须加，否则开启中断会立即产生一次中断
+	LL_TIM_ClearFlag_UPDATE(_TIMx);
+	if (enable == DISABLE)
+	{
+		LL_TIM_DisableIT_UPDATE(_TIMx);
+	}else{
+		LL_TIM_EnableIT_UPDATE(_TIMx);
+	}
+	
 }
 
 void TIM::start(void)
 {
-    // TIM_Cmd(_TIMx, ENABLE); //????
 	/* Enable counter */
-  LL_TIM_EnableCounter(TIM2);
+	LL_TIM_EnableCounter(_TIMx);
 }
 
 void TIM::stop(void)
 {
-   // TIM_Cmd(_TIMx, DISABLE); //????
-	LL_TIM_DisableCounter(TIM2);
+	/* DISABLE counter */
+	LL_TIM_DisableCounter(_TIMx);
 }
 void TIM::base_init(uint16_t period, uint16_t prescaler)
 {
-	LL_TIM_InitTypeDef TIM_InitStructure;
-	  /* Enable the timer peripheral clock */
-  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2); 
-  
-  TIM_InitStructure.Prescaler = prescaler - 1;
-  TIM_InitStructure.CounterMode = LL_TIM_COUNTERMODE_UP;
-  TIM_InitStructure.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
-  
-  LL_TIM_Init(_TIMx,TIM_InitStructure);
-  
-  /* Set counter mode */
-  /* Reset value is LL_TIM_COUNTERMODE_UP */
-  //LL_TIM_SetCounterMode(TIM2, LL_TIM_COUNTERMODE_UP);
-
-  /* Set the pre-scaler value to have TIM2 counter clock equal to 10 kHz      */
-  /*
-    In this example TIM2 input clock (TIM2CLK)  is set to APB1 clock (PCLK1),
-    since APB1 prescaler is equal to 1.
-      TIM2CLK = PCLK1
-      PCLK1 = HCLK
-      => TIM2CLK = HCLK = SystemCoreClock
-    To get TIM2 counter clock at 10 KHz, the Prescaler is computed as following:
-    Prescaler = (TIM2CLK / TIM2 counter clock) - 1
-    Prescaler = (SystemCoreClock /10 KHz) - 1
-  */
-  
-  // LL_TIM_SetPrescaler(TIM2, __LL_TIM_CALC_PSC(SystemCoreClock, 10000));
-  
-  /* Set the auto-reload value to have an initial update event frequency of 10 Hz */
-//  InitialAutoreload = __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(TIM2), 10);
-//  LL_TIM_SetAutoReload(TIM2, InitialAutoreload);
-  
-  /* Enable the update interrupt */
-  LL_TIM_EnableIT_UPDATE(TIM2);
+  /* (1)Enable the timer peripheral clock */
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
+  /* (1)select clock Source */
+  LL_TIM_SetClockSource(_TIMx,LL_TIM_CLOCKSOURCE_INTERNAL);
+  /* (2)Set counter mode ,可跳过，Reset value is LL_TIM_COUNTERMODE_UP */
+  //LL_TIM_SetCounterMode(_TIMx, LL_TIM_COUNTERMODE_UP);
+  /* (3)Set Clock Division */
+  LL_TIM_SetClockDivision(_TIMx,LL_TIM_CLOCKDIVISION_DIV1);	
+  /* (4)Set the pre-scaler value to have TIMx counter */
+  LL_TIM_SetPrescaler(_TIMx, prescaler - 1);  
+  /* (5)Set the auto-reload value to have an initial update event */
+  //  InitialAutoreload = __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(_TIMx), 10);
+  LL_TIM_SetAutoReload(_TIMx, period);
+  /* (6)Enable the update interrupt */
+  LL_TIM_EnableIT_UPDATE(_TIMx);
   
   /* Configure the NVIC to handle TIM2 update interrupt */
   NVIC_SetPriority(TIM2_IRQn, 0);
-  NVIC_EnableIRQ(TIM2_IRQn);
+  NVIC_EnableIRQ(TIM2_IRQn); 
   
   /* Enable counter */
-  LL_TIM_EnableCounter(TIM2);
+  //LL_TIM_EnableCounter(TIM2);
   
   /* Force update generation */
-  LL_TIM_GenerateEvent_UPDATE(TIM2);
+  //LL_TIM_GenerateEvent_UPDATE(TIM2);
 //    NVIC_InitTypeDef NVIC_InitStructure;
 
 //    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
@@ -170,27 +173,13 @@ void TIM::base_init(uint16_t period, uint16_t prescaler)
 //        break;
 //#endif
 //    }
-
-//    TIM_TimeBaseStructure.TIM_Period = period - 1; //ARR寄存器
-//    TIM_TimeBaseStructure.TIM_Prescaler = prescaler - 1;
-//    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; //单边斜坡
-//    TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-
-//    TIM_TimeBaseInit(_TIMx, &TIM_TimeBaseStructure);
-//    TIM_ARRPreloadConfig(_TIMx, ENABLE);	//控制ARR寄存器是否使用影子寄存器
-
-//    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;//
-//    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;//
-//    NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-//    NVIC_Init(&NVIC_InitStructure);
-
 }
+
 void TIM::set_reload(uint16_t auto_reload)
-{
-    //TIM_SetAutoreload(_TIMx, auto_reload);
-	LL_TIM_SetAutoReload(_TIMx,auto_reload);
-	
+{    
+	LL_TIM_SetAutoReload(_TIMx,auto_reload);	
 }
+
 void TIM::clear_count(void)
 {
     _TIMx->CNT = 0;

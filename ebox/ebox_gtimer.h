@@ -3,7 +3,7 @@ file   : gtimer.h
 author : shentq
 version: V1.1
 date   : 2016/4/6
-
+date   : 2016/6/30 LQMÒÆÖ²µ½STM32F0Æ½Ì¨
 Copyright 2015 shentq. All Rights Reserved.
 
 Copyright Notice
