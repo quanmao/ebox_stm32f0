@@ -44,41 +44,35 @@ Copyright 2015 shentq. All Rights Reserved.
 	// }
 // }
 
-FLASHCLASS flash;//创建一个内部 flash 读写对象
-uint16_t wbuf[10] = {0,1,2,3,4,5,6,7,8,2};
-uint16_t rbuf[10];
+TIM timer2(TIM2);//???????????,?? TIM2?
+uint32_t count;
+void t2_event()//?????????
+{
+	count++;
+	if (count == 1000)
+	{
+		count = 0;
+		PA5.toggle();
+		uart1.printf("\r\ntimer2 is triggered 1000 times !");
+	}
+}
 void setup()
 {
 	ebox_init();
 	uart1.begin(115200);
-	uart1.printf("test66666666");
+	timer2.begin(2000);//?????????:1KHz
+	timer2.attach_interrupt(t2_event);//??????
+	timer2.interrupt(ENABLE);//????
+	timer2.start();//?????
+	PA5.mode(OUTPUT_PP);
+	uart1.printf("\r\ntimer2 test !");
 }
+
 int main(void)
 {
 	setup();
-//random_seed(10);
 	while (1)
 	{
-//for(int i = 0; i <10; i++)//使用 random 函数给写缓冲区赋值
-//{
-//wbuf[i] = random(100);
-//}
-		flash.erase_sector(ADDR_FLASH_PAGE_15);
-		flash.write_sector(ADDR_FLASH_PAGE_15,(uint16_t*)wbuf,9);//将写缓冲区的内容写入内部 flash
-		uart1.printf("write data\r\n");
-		for (int i = 0; i <10; i++)
-		{
-			uart1.printf("%02d ",wbuf[i]);
-		}
-		uart1.printf("\r\n");
-		uart1.printf("read data\r\n");
-		flash.read(ADDR_FLASH_PAGE_15,(uint16_t*)rbuf,10);//将内部 flash 中的内容读取到读缓冲区
-		for (int i = 0; i <10; i++)
-		{
-			uart1.printf("%02d ",rbuf[i]);
-		}
-		uart1.printf("\r\n============================\r\n");
-		delay_ms(5000);
 	}
 }
 
