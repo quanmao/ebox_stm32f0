@@ -1,5 +1,6 @@
 #include "ebox_common.h"
 
+
 /**
  *@name     Gpio(GPIO_TypeDef *port,uint16_t pin)
  *@brief    Gpio构造函数
@@ -60,13 +61,14 @@ Gpio::Gpio(GPIO_TypeDef *port, uint16_t pin)
 */
 void Gpio::mode(PIN_MODE mode,uint8_t af_configration)
 {
-	GPIO_InitTypeDef GPIO_InitStructure;
+	//GPIO_InitTypeDef GPIO_InitStructure;
 
 	switch ((uint32_t)this->port)
 	{
 	case (uint32_t)GPIOA_BASE:
 		//RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);
 		__HAL_RCC_GPIOA_CLK_ENABLE();
+		//LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOA)
 		break;
 
 	case (uint32_t)GPIOB_BASE:
@@ -93,196 +95,231 @@ void Gpio::mode(PIN_MODE mode,uint8_t af_configration)
 		//RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);
 		__HAL_RCC_GPIOF_CLK_ENABLE();
 		break;
-		// case (uint32_t)GPIOG_BASE:
-		// RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOG, ENABLE);
-//        break;
 	}
 
 
-	GPIO_InitStructure.Pin = this->pin;
-	GPIO_InitStructure.Mode = /*(GPIOMode_TypeDef)*/mode;
+//	GPIO_InitStructure.Pin = this->pin;
+	// GPIO_InitStructure.Pin = this->pin;
+//	GPIO_InitStructure.Mode = /*(GPIOMode_TypeDef)*/mode;
 	switch ((uint8_t)mode)
 	{
 		/*analog input mode
 		*/
 	case AIN:
-		//GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;
-		GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
-		//GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		//GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		GPIO_InitStructure.Pull = GPIO_NOPULL;
+		// GPIO_InitStructure.Mode = GPIO_MODE_ANALOG;
+		// GPIO_InitStructure.Pull = GPIO_NOPULL;
+		LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_ANALOG);
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_NO);
+		
 		break;
 
 		/* digital input mode
 		*/
 	case INPUT:
-		GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
-		//GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		//GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		GPIO_InitStructure.Pull = GPIO_NOPULL;
+		// GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
+		// GPIO_InitStructure.Pull = GPIO_NOPULL;
+		
+		LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_INPUT);
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_NO);
 		break;
 
 	case INPUT_PD:
-		GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
-		//GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		//GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		GPIO_InitStructure.Pull = GPIO_PULLDOWN;
+		// GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
+		// GPIO_InitStructure.Pull = GPIO_PULLDOWN;
+		
+				LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_INPUT);
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_DOWN);
 		break;
 
 	case INPUT_PU:
-		GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
-		//GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		//GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		GPIO_InitStructure.Pull = GPIO_PULLUP;
+		// GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
+		// GPIO_InitStructure.Pull = GPIO_PULLUP;
+				LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_INPUT);
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_UP);
 		break;
 
 		/*digital output mode
 		*/
 	case OUTPUT_OD:
-		GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_OD;
-		//GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-		GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-		GPIO_InitStructure.Pull = GPIO_NOPULL;
+		// GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_OD;
+		// GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+		// GPIO_InitStructure.Pull = GPIO_NOPULL;
+		LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_OUTPUT);
+		LL_GPIO_SetPinOutputType(port,pin,LL_GPIO_OUTPUT_OPENDRAIN);
+		LL_GPIO_SetPinSpeed(port,pin,LL_GPIO_SPEED_FREQ_HIGH);		
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_NO);
 		break;
 
 	case OUTPUT_OD_PU:
-		GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_OD;
-		//GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-		GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-		GPIO_InitStructure.Pull = GPIO_PULLUP;
-		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-		// GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-		// GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		// GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+		// GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_OD;
+		// GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+		// GPIO_InitStructure.Pull = GPIO_PULLUP;
+		LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_OUTPUT);
+		LL_GPIO_SetPinOutputType(port,pin,LL_GPIO_OUTPUT_OPENDRAIN);
+		LL_GPIO_SetPinSpeed(port,pin,LL_GPIO_SPEED_FREQ_HIGH);		
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_UP);;
 		break;
 
 	case OUTPUT_OD_PD:
-		GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_OD;
-		//GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-		GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-		GPIO_InitStructure.Pull = GPIO_PULLDOWN;
-		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-		// GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-		// GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		// GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+		// GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_OD;
+		// GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+		// GPIO_InitStructure.Pull = GPIO_PULLDOWN;
+		LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_OUTPUT);
+		LL_GPIO_SetPinOutputType(port,pin,LL_GPIO_OUTPUT_OPENDRAIN);
+		LL_GPIO_SetPinSpeed(port,pin,LL_GPIO_SPEED_FREQ_HIGH);		
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_DOWN);
 		break;
 
 	case OUTPUT_PP:
-		GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
-		//GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-		GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-		GPIO_InitStructure.Pull = GPIO_NOPULL;
-		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-		// GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		// GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		// GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+		// GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
+		// GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+		// GPIO_InitStructure.Pull = GPIO_NOPULL;
+		LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_OUTPUT);
+		LL_GPIO_SetPinOutputType(port,pin,LL_GPIO_OUTPUT_PUSHPULL);
+		LL_GPIO_SetPinSpeed(port,pin,LL_GPIO_SPEED_FREQ_HIGH);		
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_NO);
 		break;
 
 	case OUTPUT_PP_PU:
-		GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
-		//GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-		GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-		GPIO_InitStructure.Pull = GPIO_PULLUP;
-		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-		// GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		// GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		// GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+		// GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
+		// GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+		// GPIO_InitStructure.Pull = GPIO_PULLUP;
+		LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_OUTPUT);
+		LL_GPIO_SetPinOutputType(port,pin,LL_GPIO_OUTPUT_PUSHPULL);
+		LL_GPIO_SetPinSpeed(port,pin,LL_GPIO_SPEED_FREQ_HIGH);		
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_UP);
 		break;
 
 	case OUTPUT_PP_PD:
-		GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
-		//GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-		GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-		GPIO_InitStructure.Pull = GPIO_PULLDOWN;
-		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-		// GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		// GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		// GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+		// GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
+		// GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+		// GPIO_InitStructure.Pull = GPIO_PULLDOWN;
+		LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_OUTPUT);
+		LL_GPIO_SetPinOutputType(port,pin,LL_GPIO_OUTPUT_PUSHPULL);
+		LL_GPIO_SetPinSpeed(port,pin,LL_GPIO_SPEED_FREQ_HIGH);		
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_DOWN);
+		
+
 		break;
 
 
 		/*af mode
 		*/
 	case AF_OD:
-		GPIO_InitStructure.Mode = GPIO_MODE_AF_OD;
-		GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-		GPIO_InitStructure.Pull = GPIO_NOPULL;
-		GPIO_InitStructure.Alternate = af_configration;
-		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-		// GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-		// GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		// GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+		// GPIO_InitStructure.Mode = GPIO_MODE_AF_OD;
+		// GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+		// GPIO_InitStructure.Pull = GPIO_NOPULL;
+		// GPIO_InitStructure.Alternate = af_configration;
+		LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_ALTERNATE);
+		LL_GPIO_SetPinOutputType(port,pin,LL_GPIO_OUTPUT_OPENDRAIN);
+		LL_GPIO_SetPinSpeed(port,pin,LL_GPIO_SPEED_FREQ_HIGH);		
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_NO);
+		if (pin< LL_GPIO_PIN_8)
+		{
+			LL_GPIO_SetAFPin_0_7(port,pin,af_configration);
+		}else{
+			LL_GPIO_SetAFPin_8_15(port,pin,af_configration);
+		}
 		break;
 
 	case AF_OD_PU:
-		GPIO_InitStructure.Mode = GPIO_MODE_AF_OD;
-		GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-		GPIO_InitStructure.Pull = GPIO_PULLUP;
-		GPIO_InitStructure.Alternate = af_configration;
-		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-		// GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-		// GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		// GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+		// GPIO_InitStructure.Mode = GPIO_MODE_AF_OD;
+		// GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+		// GPIO_InitStructure.Pull = GPIO_PULLUP;
+		// GPIO_InitStructure.Alternate = af_configration;
+		LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_ALTERNATE);
+		LL_GPIO_SetPinOutputType(port,pin,LL_GPIO_OUTPUT_OPENDRAIN);
+		LL_GPIO_SetPinSpeed(port,pin,LL_GPIO_SPEED_FREQ_HIGH);		
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_UP);
+		if (pin< LL_GPIO_PIN_8)
+		{
+			LL_GPIO_SetAFPin_0_7(port,pin,af_configration);
+		}else{
+			LL_GPIO_SetAFPin_8_15(port,pin,af_configration);
+		}
 		break;
 
 	case AF_OD_PD:
-		GPIO_InitStructure.Mode = GPIO_MODE_AF_OD;
-		GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-		GPIO_InitStructure.Pull = GPIO_PULLDOWN;
-		GPIO_InitStructure.Alternate = af_configration;
-		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-		// GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-		// GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		// GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+		// GPIO_InitStructure.Mode = GPIO_MODE_AF_OD;
+		// GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+		// GPIO_InitStructure.Pull = GPIO_PULLDOWN;
+		// GPIO_InitStructure.Alternate = af_configration;
+		LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_ALTERNATE);
+		LL_GPIO_SetPinOutputType(port,pin,LL_GPIO_OUTPUT_OPENDRAIN);
+		LL_GPIO_SetPinSpeed(port,pin,LL_GPIO_SPEED_FREQ_HIGH);		
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_DOWN);
+		if (pin< LL_GPIO_PIN_8)
+		{
+			LL_GPIO_SetAFPin_0_7(port,pin,af_configration);
+		}else{
+			LL_GPIO_SetAFPin_8_15(port,pin,af_configration);
+		}
 		break;
 
 	case AF_PP:
-		GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
-		GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-		GPIO_InitStructure.Pull = GPIO_NOPULL;
-		GPIO_InitStructure.Alternate = af_configration;
-		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-		// GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		// GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		// GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+		// GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+		// GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+		// GPIO_InitStructure.Pull = GPIO_NOPULL;
+		// GPIO_InitStructure.Alternate = af_configration;
+		LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_ALTERNATE);
+		LL_GPIO_SetPinOutputType(port,pin,LL_GPIO_OUTPUT_PUSHPULL);
+		LL_GPIO_SetPinSpeed(port,pin,LL_GPIO_SPEED_FREQ_HIGH);		
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_NO);
+		if (pin< LL_GPIO_PIN_8)
+		{
+			LL_GPIO_SetAFPin_0_7(port,pin,af_configration);
+		}else{
+			LL_GPIO_SetAFPin_8_15(port,pin,af_configration);
+		}
+
 		break;
 
 	case AF_PP_PU:
-		GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
-		GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-		GPIO_InitStructure.Pull = GPIO_PULLUP;
-		GPIO_InitStructure.Alternate = af_configration;
-		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-		// GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		// GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		// GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+		// GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+		// GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+		// GPIO_InitStructure.Pull = GPIO_PULLUP;
+		// GPIO_InitStructure.Alternate = af_configration;
+		
+		LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_ALTERNATE);
+		LL_GPIO_SetPinOutputType(port,pin,LL_GPIO_OUTPUT_PUSHPULL);
+		LL_GPIO_SetPinSpeed(port,pin,LL_GPIO_SPEED_FREQ_HIGH);		
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_UP);
+		if (pin< LL_GPIO_PIN_8)
+		{
+			LL_GPIO_SetAFPin_0_7(port,pin,af_configration);
+		}else{
+			LL_GPIO_SetAFPin_8_15(port,pin,af_configration);
+		}
 		break;
 
 	case AF_PP_PD:
-		GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
-		GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-		GPIO_InitStructure.Pull = GPIO_PULLDOWN;
-		GPIO_InitStructure.Alternate = af_configration;
-		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-		// GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		// GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		// GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_DOWN;
+		// GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+		// GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+		// GPIO_InitStructure.Pull = GPIO_PULLDOWN;
+		// GPIO_InitStructure.Alternate = af_configration;
+		LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_ALTERNATE);
+		LL_GPIO_SetPinOutputType(port,pin,LL_GPIO_OUTPUT_PUSHPULL);
+		LL_GPIO_SetPinSpeed(port,pin,LL_GPIO_SPEED_FREQ_HIGH);		
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_DOWN);
+		if (pin< LL_GPIO_PIN_8)
+		{
+			LL_GPIO_SetAFPin_0_7(port,pin,af_configration);
+		}else{
+			LL_GPIO_SetAFPin_8_15(port,pin,af_configration);
+		}
+		
+
 		break;
 		/* if parament is other mode,set as INPUT mode
 		*/
 	default:
-		GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
-		//GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-		//GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		GPIO_InitStructure.Pull = GPIO_NOPULL;
-		// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-//            GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-//            GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-		// GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+		//GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
+	    //GPIO_InitStructure.Pull = GPIO_NOPULL;
+		LL_GPIO_SetPinMode(port,pin,LL_GPIO_MODE_INPUT);
+		LL_GPIO_SetPinPull(port,pin,LL_GPIO_PULL_NO);
+	
 		break;
 	}
-	// Initialization GPIO
-	HAL_GPIO_Init(this->port,&GPIO_InitStructure);
 	//GPIO_Init(this->port, &GPIO_InitStructure);   //初始化GPIOC端口
 }
 void Gpio::mode(PIN_MODE mode)
