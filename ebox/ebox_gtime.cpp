@@ -3,7 +3,7 @@ file   : gtimer.cpp
 author : shentq
 version: V1.1
 date   : 2015/7/5
-date   : 2016/6/30 LQM移植到STM32F0平台
+date   : 2016/6/30 LQM移植到STM32F0平台,支持TIM 2,3
 Copyright 2015 shentq. All Rights Reserved.
 
 Copyright Notice
@@ -34,17 +34,16 @@ TIM::TIM(TIM_TypeDef *TIMx)
 */
 void TIM::begin(uint32_t frq)
 {
-    uint32_t _period  = 0;
-    uint32_t _prescaler = 1;
-    if(frq >= 1000000)frq = 1000000;
-    for(; _prescaler <= 0xffff; _prescaler++)
-    {
-        //_period = 84000000 / _prescaler / frq;
-		    _period = __LL_TIM_CALC_ARR(SystemCoreClock, _prescaler, frq);
-        if((0xffff >= _period))break;
-    }	
+	uint32_t _period  = 0;
+	uint32_t _prescaler = 1;
+	if (frq >= 1000000)frq = 1000000;
+	for (; _prescaler <= 0xffff; _prescaler++)
+	{
+		_period = __LL_TIM_CALC_ARR(SystemCoreClock, _prescaler, frq);
+		if ((0xffff >= _period))break;
+	}
 
-    base_init(_period, _prescaler);
+	base_init(_period, _prescaler);
 }
 
 void TIM::reset_frq(uint32_t frq)
@@ -70,18 +69,6 @@ void TIM::attach_interrupt(void(*callback)(void))
     case (uint32_t)TIM3_BASE:
         timx_cb_table[2][0] = callback;
         break;
-//    case (uint32_t)TIM4_BASE:
-//        timx_cb_table[3][0] = callback;
-//        break;
-//    case (uint32_t)TIM5_BASE:
-//        timx_cb_table[4][0] = callback;
-//        break;
-//    case (uint32_t)TIM6_BASE:
-//        timx_cb_table[5][0] = callback;
-//        break;
-//    case (uint32_t)TIM7_BASE:
-//        timx_cb_table[6][0] = callback;
-//        break;
     }
 }
 
@@ -112,7 +99,13 @@ void TIM::stop(void)
 void TIM::base_init(uint16_t period, uint16_t prescaler)
 {
   /* (1)Enable the timer peripheral clock */
-  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
+  if (_TIMx == TIM2)
+  {
+	  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
+  }else if (_TIMx == TIM3)
+  {
+	  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM3);
+  }  
   /* (1)select clock Source */
   LL_TIM_SetClockSource(_TIMx,LL_TIM_CLOCKSOURCE_INTERNAL);
   /* (2)Set counter mode ,可跳过，Reset value is LL_TIM_COUNTERMODE_UP */
@@ -128,51 +121,8 @@ void TIM::base_init(uint16_t period, uint16_t prescaler)
   LL_TIM_EnableIT_UPDATE(_TIMx);
   
   /* Configure the NVIC to handle TIM2 update interrupt */
-  NVIC_SetPriority(TIM2_IRQn, 0);
-  NVIC_EnableIRQ(TIM2_IRQn); 
-  
-  /* Enable counter */
-  //LL_TIM_EnableCounter(TIM2);
-  
-  /* Force update generation */
-  //LL_TIM_GenerateEvent_UPDATE(TIM2);
-//    NVIC_InitTypeDef NVIC_InitStructure;
-
-//    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
-//    TIM_DeInit(_TIMx);
-//    switch((uint32_t)_TIMx)
-//    {
-//    //		case (uint32_t)TIM1:
-//    //			RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
-//    //			NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;//
-//    //			break;
-//    case (uint32_t)TIM2_BASE:
-//        RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-//        NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;//
-//        break;
-//    case (uint32_t)TIM3_BASE:
-//        RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-//        NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;//
-//        break;
-//    case (uint32_t)TIM4_BASE:
-//        RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-//        NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;//
-//        break;
-//#if defined (STM32F10X_HD)
-//    case (uint32_t)TIM5_BASE:
-//        RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);
-//        NVIC_InitStructure.NVIC_IRQChannel = TIM5_IRQn;//
-//        break;
-//    case (uint32_t)TIM6_BASE:
-//        RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM6, ENABLE);
-//        NVIC_InitStructure.NVIC_IRQChannel = TIM6_IRQn;//
-//        break;
-//    case (uint32_t)TIM7_BASE:
-//        RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM7, ENABLE);
-//        NVIC_InitStructure.NVIC_IRQChannel = TIM7_IRQn;//
-//        break;
-//#endif
-//    }
+  // NVIC_SetPriority(TIM2_IRQn, 0);
+  // NVIC_EnableIRQ(TIM2_IRQn); 
 }
 
 void TIM::set_reload(uint16_t auto_reload)

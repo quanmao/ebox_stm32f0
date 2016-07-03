@@ -18,7 +18,7 @@ This specification is preliminary and is subject to change at any time without n
 #include "ebox_common.h"
 
 /*
-	1.支持tim2,3,4
+	1.支持tim2,3
 	2.提供一个1-1Mhz的定时中断
 */
 
