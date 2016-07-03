@@ -4,20 +4,35 @@
 extern "C" {
 #include "ebox_core.h"
 
+	__weak void SystemClock_Config()
+	{
+		/* Configuration will allow to reach a SYSCLK frequency set to 24MHz:
+		 Syst freq = ((HSI_VALUE * PLLMUL)/ PLLDIV)
+		             ((8MHz * 12)/ 4)                  = 24MHz             */
+		LL_UTILS_PLLInitTypeDef sUTILS_PLLInitStruct = {LL_RCC_PLL_MUL_12 , LL_RCC_PREDIV_DIV_2}; ;
+
+		/* Variable to store AHB and APB buses clock configuration */
+		/* Settings to have HCLK set to 12MHz and APB to 6 MHz */
+		LL_UTILS_ClkInitTypeDef sUTILS_ClkInitStruct = {LL_RCC_SYSCLK_DIV_1, LL_RCC_APB1_DIV_1};
+
+		/* Switch to PLL with HSI as clock source             */
+		LL_PLL_ConfigSystemClock_HSI(&sUTILS_PLLInitStruct, &sUTILS_ClkInitStruct);
+	}
+
 	//system_clock_t system_clock;
 	__IO uint64_t millis_seconds;//提供一个mills()等效的全局变量。降低cpu调用开销
 	//static void get_system_clock(system_clock_t *clock);
 
 	void ebox_init(void)
 	{
-		//get_system_clock(&system_clock); 
+		//get_system_clock(&system_clock);
 		// SystemCoreClockUpdate();
-		// SysTick_Config(SystemCoreClock/1000);
+
 		//SysTick_Config(system_clock.core/1000);//  每隔 (nhz/168,000,000)s产生一次中断
 		//NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2); // 待确认
-		HAL_Init();  // 配置SysTick
-//		SystemClock_Config();
-		
+		//HAL_Init();  // 配置SysTick
+		SystemClock_Config();
+		SysTick_Config(SystemCoreClock/1000);
 	}
 
 	uint64_t micros(void)
