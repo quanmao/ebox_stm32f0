@@ -14,10 +14,13 @@ PWM pwm1(&PA6);//
 void setup()
 {
 	ebox_init();
-	//PA7.mode(OUTPUT_PP);
-	pwm1.begin(38999, 50);//??? PWM ??
-  delay_ms(5000);
-  pwm1.set_oc_polarity(0);//?? PWM ?????
+
+	PA5.mode(OUTPUT_PP);
+	pwm1.begin(47000, 500);//??? PWM ??
+	delay_ms(5000);
+	pwm1.set_oc_polarity(0);//?? PWM ?????
+	delay_ms(5000);
+	//pwm1.set_frq(100);
 }
 uint16_t y;
 int main(void)
@@ -25,14 +28,15 @@ int main(void)
 	setup();
 	while (1)
 	{
-		//PA7.toggle();
+		PA5.toggle();
+		delay_ms(500);
 		//uart2.printf("test66666666");
 //    for(y = 0;y<=1000;y++)
 //    {
 //      pwm1.set_duty(y);
 //      delay_ms(50);
 //    }
-		
+
 	}
 }
 
