@@ -50,13 +50,15 @@ void PWM::base_init(uint16_t period, uint16_t prescaler)
 
 	/* Enable the timer peripheral clock */
 	LL_APB1_GRP1_EnableClock(rcc);
-
-	/***************************/
+    /***************************/
 	/* Time base configuration */
 	/***************************/
 	/* Set counter mode */
 	/* Reset value is LL_TIM_COUNTERMODE_UP */
 	//LL_TIM_SetCounterMode(TIM3, LL_TIM_COUNTERMODE_UP);
+	/* (1)select clock Source */
+	LL_TIM_SetClockSource(TIMx,LL_TIM_CLOCKSOURCE_INTERNAL);
+	
 
 	/* Set the pre-scaler value to have TIM3 counter clock equal to 10 kHz */
 	LL_TIM_SetPrescaler(TIMx, prescaler);
@@ -191,8 +193,9 @@ void PWM::set_oc_polarity(uint8_t flag)
 	/* Set output channel polarity */
 	/* Reset value is LL_TIM_OCPOLARITY_HIGH */
 	LL_TIM_OC_SetPolarity(TIMx, TIM_Channel, oc_polarity);
-	//set_duty(duty);
+	set_duty(duty);
 }
+
 
 /**
  *@name     void PWM::set_frq(uint32_t frq)
@@ -202,23 +205,42 @@ void PWM::set_oc_polarity(uint8_t flag)
 */
 void PWM::set_frq(uint32_t frq)
 {
+	__IO	uint32_t TIM_Clock;
 	uint32_t period  = 0;
 	uint32_t prescaler = 1;
-	if (frq >= (SystemCoreClock/2))frq = (SystemCoreClock/2);
+	// 需要在mdk中定义 USE_FULL_LL_DRIVER
+	//LL_RCC_ClocksTypeDef CLOCK;
+	//LL_RCC_GetSystemClocksFreq(&CLOCK);
+	
+	// 计算TIM时钟频率
+	if (LL_RCC_GetAPB1Prescaler() == 0)
+	{
+		TIM_Clock = SystemCoreClock;
+	}else{
+		// ((SystemCoreClock/AHBDiv)/APBDiv)*2,即PCLK*2
+		TIM_Clock = (__LL_RCC_CALC_PCLK1_FREQ(SystemCoreClock/((LL_RCC_GetAHBPrescaler()>>8)+1),LL_RCC_GetAPB1Prescaler()))*2;
+	} 
+    
+//	if (frq >= (SystemCoreClock/2))frq = (SystemCoreClock/2);
 	//千分之一精度分配方案
 	for (; prescaler <= 0xffff; prescaler++)
 	{
-		//period = SystemCoreClock / prescaler / frq;
-		period = __LL_TIM_CALC_ARR(SystemCoreClock, prescaler, frq);
-		if ((0xffff >= period) && (period >= 1000))break;
+		//period = TIM_Clock / prescaler / frq;
+		period = __LL_TIM_CALC_ARR(TIM_Clock, prescaler, frq);
+		if ((0xffff >= period) && (period >= 1000)){
+      break;
+    }
 	}
 	if (prescaler == 65536){//上述算法分配失败
 		//百分之一分配方案
 		for (prescaler = 1; prescaler <= 0xffff; prescaler++)
 		{
-			//period = SystemCoreClock / prescaler / frq;
-			period = __LL_TIM_CALC_ARR(SystemCoreClock, prescaler, frq);
-			if ((0xffff >= period) && (period >= 100))break;
+			//period = TIM_Clock / prescaler / frq;
+			period = __LL_TIM_CALC_ARR(TIM_Clock, prescaler, frq);
+			if ((0xffff >= period) && (period >= 100))
+      {
+        break;
+      }
 		}
 	}
 	
