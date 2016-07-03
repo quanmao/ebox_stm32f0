@@ -17,14 +17,13 @@ This specification is preliminary and is subject to change at any time without n
 
 #include "ebox_common.h"
 /*
-	1.支持TIM2,3,4下的CH1-4通道。
+	1.支持TIM2,3下的CH1-4通道。
 	2.额外封装了一个analogWrite函数，可以直接调用analogWrite实现pwm
 	3.可以随时调用pwm的参数修改函数。调用setfrq函数不会改变占空比,但是会影响同定时器下其他通道的工作。
-	注意：1.暂时没有完美支持remap引脚。
-					如果使用remap引脚需要自己在执行完初始化函数后再执行相应的remap函数。
-				2.使用了相应的timx为pwm服务后，该tim就不能再初始化成另外的功能
-				3.初始化pwm后，只有调用setDuty函数后才会输出pwm
-				4.如果duty大于等于1000则输出持续高电平
+	注意： 	1.暂时没有完美支持remap引脚，如果使用remap引脚需要自己在执行完初始化函数后再执行相应的remap函数。
+			2.使用了相应的timx为pwm服务后，该tim就不能再初始化成另外的功能
+			3.初始化pwm后，只有调用setDuty函数后才会输出pwm
+			4.如果duty大于等于1000则输出持续高电平
 */
 
 
@@ -36,22 +35,25 @@ This specification is preliminary and is subject to change at any time without n
 class PWM
 {
 public:
-    PWM(Gpio *pwm_pin);
-    void begin(uint32_t frq, uint16_t duty);
-    void set_frq(uint32_t frq);
-    void set_duty(uint16_t duty);
-    void set_oc_polarity(uint8_t flag);
+	PWM(Gpio *pwm_pin);
+	void begin(uint32_t frq, uint16_t duty);
+	void set_frq(uint32_t frq);
+	void set_duty(uint16_t duty);
+	void set_oc_polarity(uint8_t flag);
 private:
-    Gpio *pwm_pin;
-    TIM_TypeDef *TIMx;
-    uint32_t    rcc;
-    uint8_t     ch;
-    uint16_t    period;//保存溢出值，用于计算占空比
-    uint16_t    duty;//保存占空比值
-    uint16_t    oc_polarity;
+	Gpio *pwm_pin;
+	uint8_t af_configration; // 保存信息，使用AF0,1,2,3,4....
+	
+	TIM_TypeDef *TIMx;
+	uint32_t    rcc;
+	uint8_t     ch;
+	uint32_t	TIM_Channel;
+	uint16_t    period;//保存溢出值，用于计算占空比
+	uint16_t    duty;//保存占空比值
+	uint16_t    oc_polarity;
 
-    void init_info(Gpio *pwm_pin);
-    void base_init(uint16_t Period, uint16_t Prescaler);
+	void init_info(Gpio *pwm_pin);
+	void base_init(uint16_t Period, uint16_t Prescaler);
 };
 void analog_write(Gpio *pwm_pin, uint16_t duty);
 

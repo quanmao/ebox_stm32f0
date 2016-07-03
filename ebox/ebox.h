@@ -8,7 +8,7 @@
 #include "ebox_gtimer.h"
 //#include "ebox_spi.h"
 //#include "ebox_i2c.h"
-//#include "ebox_pwm.h"
+#include "ebox_pwm.h"
 #include "ebox_iflash.h"
 
 

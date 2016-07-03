@@ -3,7 +3,7 @@ file   : pwm.cpp
 author : shentq
 version: V1.1
 date   : 2015/7/5
-
+date   : 2016/7/2 LQM移植到STM32F0平台,支持TIM 2,3
 Copyright 2015 shentq. All Rights Reserved.
 
 Copyright Notice
@@ -14,206 +14,260 @@ This specification is preliminary and is subject to change at any time without n
 */
 #include "ebox_pwm.h"
 
-
-
-
 #define TIMxCH1 0x01
 #define TIMxCH2 0x02
 #define TIMxCH3 0x03
 #define TIMxCH4 0x04
 
 
-
 PWM::PWM(Gpio *pwm_pin)
 {
-    //	if(isPwmPin(PWMpin))
-    //	{
     this->pwm_pin = pwm_pin;
-    //	}
 }
+
 void PWM::begin(uint32_t frq, uint16_t duty)
 {
-    this->duty = duty;
+	this->duty = duty;
 
-    init_info(pwm_pin);
-    pwm_pin->mode(AF_PP);
+	init_info(pwm_pin);
+	pwm_pin->mode(AF_PP,af_configration);
 
-    set_oc_polarity(1);
-    set_frq(frq);
-    set_duty(duty);
+	set_oc_polarity(1);
+	set_frq(frq);
+	set_duty(duty);
 }
+
+/**
+ *@name     void PWM::base_init(uint16_t period, uint16_t prescaler)
+ *@brief    TIM PWM模式输出基本设置
+ *@param    period:  周期
+ *			prescaler: 预分频
+ *@retval   None
+*/
 void PWM::base_init(uint16_t period, uint16_t prescaler)
 {
-    this->period = period;//更新period
+	this->period = period;//更新period
 
+	/* Enable the timer peripheral clock */
+	LL_APB1_GRP1_EnableClock(rcc);
 
-    TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
+	/***************************/
+	/* Time base configuration */
+	/***************************/
+	/* Set counter mode */
+	/* Reset value is LL_TIM_COUNTERMODE_UP */
+	//LL_TIM_SetCounterMode(TIM3, LL_TIM_COUNTERMODE_UP);
 
-    RCC_APB1PeriphClockCmd(rcc, ENABLE);
-    TIM_TimeBaseStructure.TIM_Period = this->period - 1; //ARR
-    TIM_TimeBaseStructure.TIM_Prescaler = prescaler - 1;
-    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; //
-    TIM_TimeBaseInit(TIMx, &TIM_TimeBaseStructure);
+	/* Set the pre-scaler value to have TIM3 counter clock equal to 10 kHz */
+	LL_TIM_SetPrescaler(TIMx, prescaler);
 
-    TIM_ARRPreloadConfig(TIMx, ENABLE);
+	/* Enable TIM2_ARR register preload. Writing to or reading from the         */
+	/* auto-reload register accesses the preload register. The content of the   */
+	/* preload register are transferred into the shadow register at each update */
+	/* event (UEV).                                                             */
+	LL_TIM_EnableARRPreload(TIMx);
 
-    TIM_Cmd(TIMx, ENABLE); //
+	/* Set the auto-reload value to have a counter frequency of 100 Hz */
+	//LL_TIM_SetAutoReload(TIMx, __LL_TIM_CALC_ARR(SystemCoreClock, LL_TIM_GetPrescaler(TIMx), 100));
+	LL_TIM_SetAutoReload(TIMx, period);
 
+	/*********************************/
+	/* Output waveform configuration */
+	/*********************************/
+	/* Set output mode */
+	/* Reset value is LL_TIM_OCMODE_FROZEN */
+	LL_TIM_OC_SetMode(TIMx, TIM_Channel, LL_TIM_OCMODE_PWM1);
+	/* Set output channel polarity */
+	/* Reset value is LL_TIM_OCPOLARITY_HIGH */
+	LL_TIM_OC_SetPolarity(TIMx, TIM_Channel, oc_polarity);
+
+	// /* Set compare value to half of the counter period (50% duty cycle ) */
+	// LL_TIM_OC_SetCompareCH2(TIMx, pulse);
+
+	/* Enable TIM2_CCR1 register preload. Read/Write operations access the      */
+	/* preload register. TIM2_CCR1 preload value is loaded in the active        */
+	/* at each update event.                                                    */
+	LL_TIM_OC_EnablePreload(TIMx, TIM_Channel);
 }
+
 void PWM::init_info(Gpio *pwm_pin)
 {
-    if(pwm_pin->port == GPIOA)
-    {
-        switch(pwm_pin->pin)
-        {
-        case GPIO_Pin_0:
-            TIMx = TIM2;
-            rcc = RCC_APB1Periph_TIM2;
-            ch = TIMxCH1;//irq = TIM2_IRQn;
-            break;
-        case GPIO_Pin_1:
-            TIMx = TIM2;
-            rcc = RCC_APB1Periph_TIM2;
-            ch = TIMxCH2;//irq = TIM2_IRQn;
-            break;
-        case GPIO_Pin_2:
-            TIMx = TIM2;
-            rcc = RCC_APB1Periph_TIM2;
-            ch = TIMxCH3;//irq = TIM2_IRQn;
-            break;
-        case GPIO_Pin_3:
-            TIMx = TIM2;
-            rcc = RCC_APB1Periph_TIM2;
-            ch = TIMxCH4;//irq = TIM2_IRQn;
-            break;
+	if (pwm_pin->port == GPIOA)
+	{
+		switch (pwm_pin->pin)
+		{
+#ifdef TIM2
+		case LL_GPIO_PIN_1:
+			TIMx = TIM2;
+			af_configration = LL_GPIO_AF_2;
+			rcc = LL_APB1_GRP1_PERIPH_TIM2;
+			ch = TIMxCH2;//irq = TIM2_IRQn;
+			TIM_Channel = LL_TIM_CHANNEL_CH2;
+			break;
+		case LL_GPIO_PIN_2:
+			TIMx = TIM2;
+			af_configration = LL_GPIO_AF_2;
+			rcc = LL_APB1_GRP1_PERIPH_TIM2;
+			ch = TIMxCH3;//irq = TIM2_IRQn;
+			TIM_Channel = LL_TIM_CHANNEL_CH3;
+			break;
+		case LL_GPIO_PIN_3:
+			TIMx = TIM2;
+			af_configration = LL_GPIO_AF_2;
+			rcc = LL_APB1_GRP1_PERIPH_TIM2;
+			ch = TIMxCH4;//irq = TIM2_IRQn;
+			TIM_Channel = LL_TIM_CHANNEL_CH4;
+			break;
+#endif
 
-        case GPIO_Pin_6:
-            TIMx = TIM3;
-            rcc = RCC_APB1Periph_TIM3;
-            ch = TIMxCH1;//irq = TIM3_IRQn;
-            break;
-        case GPIO_Pin_7:
-            TIMx = TIM3;
-            rcc = RCC_APB1Periph_TIM3;
-            ch = TIMxCH2;//irq = TIM3_IRQn;
-            break;
-        case GPIO_Pin_10:
-            TIMx = TIM3;
-            rcc = RCC_APB1Periph_TIM3;
-            ch = TIMxCH3;//irq = TIM3_IRQn;
-            break;
-        case GPIO_Pin_11:
-            TIMx = TIM3;
-            rcc = RCC_APB1Periph_TIM3;
-            ch = TIMxCH4;//irq = TIM3_IRQn;
-            break;
-        }
-    }
-    if(pwm_pin->port == GPIOB)
-    {
-        switch(pwm_pin->pin)
-        {
-        case GPIO_Pin_6:
-            TIMx = TIM4;
-            rcc = RCC_APB1Periph_TIM4;
-            ch = TIMxCH1;//irq = TIM4_IRQn;
-            break;
-        case GPIO_Pin_7:
-            TIMx = TIM4;
-            rcc = RCC_APB1Periph_TIM4;
-            ch = TIMxCH2;//irq = TIM4_IRQn;
-            break;
-        case GPIO_Pin_8:
-            TIMx = TIM4;
-            rcc = RCC_APB1Periph_TIM4;
-            ch = TIMxCH3;//irq = TIM4_IRQn;
-            break;
-        case GPIO_Pin_9:
-            TIMx = TIM4;
-            rcc = RCC_APB1Periph_TIM4;
-            ch = TIMxCH4;//irq = TIM4_IRQn;
-            break;
-        }
-    }
-
+#ifdef TIM3
+		case LL_GPIO_PIN_6:
+			TIMx = TIM3;
+			af_configration = LL_GPIO_AF_1;
+			rcc = LL_APB1_GRP1_PERIPH_TIM3;
+			ch = TIMxCH1;//irq = TIM3_IRQn;
+			TIM_Channel = LL_TIM_CHANNEL_CH1;
+			break;
+		case LL_GPIO_PIN_7:
+			TIMx = TIM3;
+			af_configration = LL_GPIO_AF_1;
+			rcc = LL_APB1_GRP1_PERIPH_TIM3;
+			ch = TIMxCH2;
+			TIM_Channel = LL_TIM_CHANNEL_CH2;//irq = TIM3_IRQn;
+			break;
+#endif
+		}
+	}
+	if (pwm_pin->port == GPIOB)
+	{
+#ifdef TIM3
+		switch (pwm_pin->pin)
+		{
+		case LL_GPIO_PIN_0:
+			TIMx = TIM3;
+			af_configration = LL_GPIO_AF_1;
+			rcc = LL_APB1_GRP1_PERIPH_TIM3;
+			ch = TIMxCH3;//irq = TIM4_IRQn;
+			TIM_Channel = LL_TIM_CHANNEL_CH3;
+			break;
+		case LL_GPIO_PIN_1:
+			TIMx = TIM3;
+			af_configration = LL_GPIO_AF_1;
+			rcc = LL_APB1_GRP1_PERIPH_TIM3;
+			ch = TIMxCH2;//irq = TIM4_IRQn;
+			TIM_Channel = LL_TIM_CHANNEL_CH4;
+			break;
+		case LL_GPIO_PIN_4:
+			TIMx = TIM3;
+			af_configration = LL_GPIO_AF_1;
+			rcc = LL_APB1_GRP1_PERIPH_TIM3;
+			ch = TIMxCH3;//irq = TIM4_IRQn;
+			TIM_Channel = LL_TIM_CHANNEL_CH1;
+			break;
+		case LL_GPIO_PIN_5:
+			TIMx = TIM3;
+			af_configration = LL_GPIO_AF_1;
+			rcc = LL_APB1_GRP1_PERIPH_TIM3;
+			ch = TIMxCH4;//irq = TIM4_IRQn;
+			TIM_Channel = LL_TIM_CHANNEL_CH2;
+			break;
+		}
+#endif
+	}
 }
 
+/**
+ *@name     void PWM::set_oc_polarity(uint8_t flag)
+ *@brief    设置极性
+ *@param    flag:  1 HIGH  0 LOW
+ *@retval   None
+*/
 void PWM::set_oc_polarity(uint8_t flag)
 {
-
-    if(flag == 1)
-        this->oc_polarity = TIM_OCPolarity_High;
-    else if(flag == 0)
-        this->oc_polarity = TIM_OCPolarity_Low;
-    set_duty(duty);
-
+	if (flag == 1)
+		this->oc_polarity = LL_TIM_OCPOLARITY_HIGH;
+	else if (flag == 0)
+		this->oc_polarity = LL_TIM_OCPOLARITY_LOW;
+	/* Set output channel polarity */
+	/* Reset value is LL_TIM_OCPOLARITY_HIGH */
+	LL_TIM_OC_SetPolarity(TIMx, TIM_Channel, oc_polarity);
+	//set_duty(duty);
 }
-//pwm的频率 = 72M/72/1000;
-//
+
+/**
+ *@name     void PWM::set_frq(uint32_t frq)
+ *@brief    设置频率，要设定的频率计算 period(周期) prescaler（预分频）
+ *@param    frq  要输出的频率
+ *@retval   None
+*/
 void PWM::set_frq(uint32_t frq)
 {
-    uint32_t period  = 0;
-    uint32_t prescaler = 1;
-    if(frq >= 840000)frq = 840000;
-    //千分之一精度分配方案
-    for(; prescaler <= 0xffff; prescaler++)
-    {
-        period = 84000000 / prescaler / frq;
-        if((0xffff >= period) && (period >= 1000))break;
-    }
-    if(prescaler == 65536)//上述算法分配失败
-        //百分之一分配方案
-        for(prescaler = 1; prescaler <= 0xffff; prescaler++)
-        {
-            period = 84000000 / prescaler / frq;
-            if((0xffff >= period) && (period >= 100))break;
-        }
-
-
-    base_init(period, prescaler);
-    set_duty(duty);
-
+	uint32_t period  = 0;
+	uint32_t prescaler = 1;
+	if (frq >= (SystemCoreClock/2))frq = (SystemCoreClock/2);
+	//千分之一精度分配方案
+	for (; prescaler <= 0xffff; prescaler++)
+	{
+		//period = SystemCoreClock / prescaler / frq;
+		period = __LL_TIM_CALC_ARR(SystemCoreClock, prescaler, frq);
+		if ((0xffff >= period) && (period >= 1000))break;
+	}
+	if (prescaler == 65536){//上述算法分配失败
+		//百分之一分配方案
+		for (prescaler = 1; prescaler <= 0xffff; prescaler++)
+		{
+			//period = SystemCoreClock / prescaler / frq;
+			period = __LL_TIM_CALC_ARR(SystemCoreClock, prescaler, frq);
+			if ((0xffff >= period) && (period >= 100))break;
+		}
+	}
+	
+	base_init(period, prescaler);
+	set_duty(duty);
 }
 
-//duty:0-1000对应0%-100.0%
+/**
+ *@name     void PWM::set_duty(uint16_t duty)
+ *@brief    设置占空比，并启动PWM输出
+ *@param    duty  0-1000对应0%-100.0%
+ *@retval   None
+*/
 void PWM::set_duty(uint16_t duty)
 {
+	this->duty = duty;
 
-    this->duty = duty;
+	uint16_t pulse = 0;
+	float percent;
 
-    uint16_t pulse = 0;
-    float percent;
-
-    if(this->duty > 1000)
-        this->duty = 1000;
-    percent = this->duty / 1000.0;
-
-    pulse = (uint16_t) (( percent  * period ));
-
-    TIM_OCInitTypeDef  TIM_OCInitStructure;
-
-    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_OCPolarity = oc_polarity;
-    TIM_OCInitStructure.TIM_Pulse = pulse;
-    switch(ch)
-    {
-    case TIMxCH1:
-        TIM_OC1Init(TIMx, &TIM_OCInitStructure);
-        break;
-    case TIMxCH2:
-        TIM_OC2Init(TIMx, &TIM_OCInitStructure);
-        break;
-    case TIMxCH3:
-        TIM_OC3Init(TIMx, &TIM_OCInitStructure);
-        break;
-    case TIMxCH4:
-        TIM_OC4Init(TIMx, &TIM_OCInitStructure);
-        break;
-    }
-
-
+	if (this->duty > 1000)
+		this->duty = 1000;
+	percent = this->duty / 1000.0;
+	pulse = (uint16_t) (( percent  * period ));
+	/* Set compare value to pulse of the counter period (pulse% duty cycle ) */
+	switch (ch)
+	{
+	case TIMxCH1:
+		LL_TIM_OC_SetCompareCH1(TIMx, pulse);
+		break;
+	case TIMxCH2:
+		LL_TIM_OC_SetCompareCH2(TIMx, pulse);
+		break;
+	case TIMxCH3:
+		LL_TIM_OC_SetCompareCH3(TIMx, pulse);
+		break;
+	case TIMxCH4:
+		LL_TIM_OC_SetCompareCH4(TIMx, pulse);
+		break;
+	}
+	/**********************************/
+	/* Start output signal generation */
+	/**********************************/
+	/* Enable output channel 1 */
+	LL_TIM_CC_EnableChannel(TIMx, TIM_Channel);
+	/* Enable counter */
+	LL_TIM_EnableCounter(TIMx);
 }
+
 //duty:0-1000对应0%-100.0%
 void analog_write(Gpio *pwm_pin, uint16_t duty)
 {
@@ -237,15 +291,4 @@ uint8_t isPwmPin(uint8_t pin)
 
     return 0;
 }
-//uint8_t isPinNeedRemap(uint8_t pin)
-//{
-//	int i;
 
-//	for( i = 0; i<255; i++)
-//	{
-//		if(pinTOTimx[i].pin == pin)
-//
-//			return pinTOTimx[i].needremap;
-//	}
-//		return 0XFF;
-//}
