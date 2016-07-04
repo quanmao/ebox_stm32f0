@@ -26,7 +26,7 @@ This specification is preliminary and is subject to change at any time without n
 			4.如果duty大于等于1000则输出持续高电平
 */
 
-
+//定时器输出频率 = TIMClock（分频后）/(period-1)
 //PWMPin:有定时器oc通道的io
 //period：定时器的周期。溢出值
 //frq = 1-720k;在72k以内可以保证占空比精度为0.1%。超过72k后占空比精度为1%。
@@ -40,6 +40,10 @@ public:
 	void set_frq(uint32_t frq);
 	void set_duty(uint16_t duty);
 	void set_oc_polarity(uint8_t flag);
+  __IO	uint32_t TIM_Clock;
+  __IO uint32_t period;
+	__IO uint32_t prescaler;
+  
 private:
 	Gpio *pwm_pin;
 	uint8_t af_configration; // 保存信息，使用AF0,1,2,3,4....
@@ -47,8 +51,8 @@ private:
 	TIM_TypeDef *TIMx;
 	uint32_t    rcc;
 	uint8_t     ch;
-	uint32_t	TIM_Channel;
-	uint16_t    period;//保存溢出值，用于计算占空比
+	uint32_t	  TIM_Channel;
+//	uint16_t    period;//保存溢出值，用于计算占空比
 	uint16_t    duty;//保存占空比值
 	uint16_t    oc_polarity;
 

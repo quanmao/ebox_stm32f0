@@ -58,10 +58,11 @@ void PWM::base_init(uint16_t period, uint16_t prescaler)
 	//LL_TIM_SetCounterMode(TIM3, LL_TIM_COUNTERMODE_UP);
 	/* (1)select clock Source */
 	LL_TIM_SetClockSource(TIMx,LL_TIM_CLOCKSOURCE_INTERNAL);
-	
+	// 默认不分频
+	LL_TIM_SetClockDivision(TIMx,LL_TIM_CLOCKDIVISION_DIV1);
 
-	/* Set the pre-scaler value to have TIM3 counter clock equal to 10 kHz */
-	LL_TIM_SetPrescaler(TIMx, prescaler);
+	/* Set the pre-scaler value to have TIM3 counter clock  */
+	LL_TIM_SetPrescaler(TIMx, prescaler-1);
 
 	/* Enable TIM2_ARR register preload. Writing to or reading from the         */
 	/* auto-reload register accesses the preload register. The content of the   */
@@ -205,9 +206,11 @@ void PWM::set_oc_polarity(uint8_t flag)
 */
 void PWM::set_frq(uint32_t frq)
 {
-	__IO	uint32_t TIM_Clock;
-	uint32_t period  = 0;
-	uint32_t prescaler = 1;
+//	__IO	uint32_t TIM_Clock;
+//	uint32_t period  = 0;
+//	uint32_t prescaler = 1;
+	period  = 0;
+  prescaler = 1;
 	// 需要在mdk中定义 USE_FULL_LL_DRIVER
 	//LL_RCC_ClocksTypeDef CLOCK;
 	//LL_RCC_GetSystemClocksFreq(&CLOCK);
@@ -219,31 +222,30 @@ void PWM::set_frq(uint32_t frq)
 	}else{
 		// ((SystemCoreClock/AHBDiv)/APBDiv)*2,即PCLK*2
 		TIM_Clock = (__LL_RCC_CALC_PCLK1_FREQ(SystemCoreClock/((LL_RCC_GetAHBPrescaler()>>8)+1),LL_RCC_GetAPB1Prescaler()))*2;
-	} 
-    
-//	if (frq >= (SystemCoreClock/2))frq = (SystemCoreClock/2);
+	}
+
+	if (frq >= (TIM_Clock/100))frq = (TIM_Clock/100);
 	//千分之一精度分配方案
-	for (; prescaler <= 0xffff; prescaler++)
+	for (; prescaler <= 65535; prescaler++)
 	{
-		//period = TIM_Clock / prescaler / frq;
-		period = __LL_TIM_CALC_ARR(TIM_Clock, prescaler, frq);
+		period = TIM_Clock / prescaler / frq;
+		//period = __LL_TIM_CALC_ARR(TIM_Clock, prescaler, frq);
 		if ((0xffff >= period) && (period >= 1000)){
       break;
     }
 	}
 	if (prescaler == 65536){//上述算法分配失败
 		//百分之一分配方案
-		for (prescaler = 1; prescaler <= 0xffff; prescaler++)
+		for (prescaler = 1; prescaler <= 65535; prescaler++)
 		{
-			//period = TIM_Clock / prescaler / frq;
-			period = __LL_TIM_CALC_ARR(TIM_Clock, prescaler, frq);
+			period = TIM_Clock / prescaler / frq;
+			//period = __LL_TIM_CALC_ARR(TIM_Clock, prescaler, frq);
 			if ((0xffff >= period) && (period >= 100))
       {
         break;
       }
 		}
 	}
-	
 	base_init(period, prescaler);
 	set_duty(duty);
 }
