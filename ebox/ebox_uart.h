@@ -43,6 +43,7 @@ private:
 	USART_TypeDef       *USARTx;
 	void                (*rcc_usart_clock_cmd)(uint32_t Periphs);
 	uint32_t            usart_rcc;
+	uint32_t		    usart_rcc_source;
 	IRQn_Type           usart_irq;
 	void                usart_config(uint32_t baud_rate);
 	// DMA²ÎÊý

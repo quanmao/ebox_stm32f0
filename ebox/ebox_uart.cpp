@@ -67,6 +67,7 @@ void Usart::begin(uint32_t baud_rate,uint8_t use_dma)
 		   // USART Parameter：时钟，中断
            rcc_usart_clock_cmd = LL_APB1_GRP2_EnableClock;
            usart_rcc           = LL_APB1_GRP2_PERIPH_USART1;
+		       usart_rcc_source	   = LL_RCC_USART1_CLKSOURCE;
            usart_irq           = USART1_IRQn;
 		   // DMA Parameter
            rcc_dma_clock_cmd   = LL_AHB1_GRP1_EnableClock;        
@@ -81,6 +82,7 @@ void Usart::begin(uint32_t baud_rate,uint8_t use_dma)
 		   // USART Parameter：时钟，中断
            rcc_usart_clock_cmd = LL_APB1_GRP1_EnableClock;
            usart_rcc           = LL_APB1_GRP1_PERIPH_USART2;
+		   usart_rcc_source	   = LL_RCC_USART2_CLKSOURCE;
            usart_irq           = USART2_IRQn;
 		   // DMA Parameter
            rcc_dma_clock_cmd   = LL_AHB1_GRP1_EnableClock;        
@@ -123,11 +125,10 @@ void Usart::usart_config(uint32_t baud_rate)
 	/* Set Baudrate to 115200 using APB frequency set to 48000000 Hz */
 	/* Frequency available for USART peripheral can also be calculated through LL RCC macro */
 	/* Ex :
-	    Periphclk = LL_RCC_GetUSARTClockFreq(Instance); or LL_RCC_GetUARTClockFreq(Instance); depending on USART/UART instance
-
+	    Periphclk = LL_RCC_GetUSARTClockFreq(Instance);depending on USART/UART instance
 	    In this example, Peripheral Clock is expected to be equal to 48000000 Hz => equal to SystemCoreClock
 	*/
-	LL_USART_SetBaudRate(USARTx, SystemCoreClock, LL_USART_OVERSAMPLING_16, baud_rate);
+	LL_USART_SetBaudRate(USARTx, LL_RCC_GetUSARTClockFreq(usart_rcc_source), LL_USART_OVERSAMPLING_16, baud_rate);
 	/* (4) Enable USARTx **********************************************************/
 	LL_USART_Enable(USARTx);
 
