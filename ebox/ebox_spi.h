@@ -1,3 +1,18 @@
+/*
+file   : spi.cpp
+author : shentq
+version: V1.1
+date   : 2015/7/5
+date   : 2016/6/30 LQMÒÆÖ²µ½STM32F0Æ½Ì¨
+Copyright 2015 shentq. All Rights Reserved.
+
+Copyright Notice
+No part of this software may be used for any commercial activities by any form or means, without the prior written consent of shentq.
+
+Disclaimer
+This specification is preliminary and is subject to change at any time without notice. shentq assumes no responsibility for any errors contained herein.
+*/
+
 #ifndef __EBOX_SPI_H
 #define __EBOX_SPI_H
 #include "ebox_common.h"
@@ -7,17 +22,17 @@
 #define SPI_MODE2 0x03
 #define SPI_MODE3 0x01
 
-#define SPI_CLOCK_DIV2     SPI_BaudRatePrescaler_2
-#define SPI_CLOCK_DIV4     SPI_BaudRatePrescaler_4
-#define SPI_CLOCK_DIV8     SPI_BaudRatePrescaler_8
-#define SPI_CLOCK_DIV16    SPI_BaudRatePrescaler_16
-#define SPI_CLOCK_DIV32    SPI_BaudRatePrescaler_32
-#define SPI_CLOCK_DIV64    SPI_BaudRatePrescaler_64
-#define SPI_CLOCK_DIV128   SPI_BaudRatePrescaler_128
-#define SPI_CLOCK_DIV256   SPI_BaudRatePrescaler_256
+#define SPI_CLOCK_DIV2     LL_SPI_BAUDRATEPRESCALER_DIV2
+#define SPI_CLOCK_DIV4     LL_SPI_BAUDRATEPRESCALER_DIV4
+#define SPI_CLOCK_DIV8     LL_SPI_BAUDRATEPRESCALER_DIV8
+#define SPI_CLOCK_DIV16    LL_SPI_BAUDRATEPRESCALER_DIV16
+#define SPI_CLOCK_DIV32    LL_SPI_BAUDRATEPRESCALER_DIV32
+#define SPI_CLOCK_DIV64    LL_SPI_BAUDRATEPRESCALER_DIV64
+#define SPI_CLOCK_DIV128   LL_SPI_BAUDRATEPRESCALER_DIV128
+#define SPI_CLOCK_DIV256   LL_SPI_BAUDRATEPRESCALER_DIV256
 
-#define SPI_BITODER_MSB		SPI_FirstBit_MSB
-#define SPI_BITODER_LSB		SPI_FirstBit_LSB
+#define SPI_BITODER_MSB	   LL_SPI_MSB_FIRST
+#define SPI_BITODER_LSB	   LL_SPI_LSB_FIRST
 
 typedef struct
 {
